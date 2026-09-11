@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Mineol.Compiler/Mineol.Compiler.csproj" />
+  <Project Path="Mineol.Templates/Mineol.Templates.csproj" />
+</Solution>

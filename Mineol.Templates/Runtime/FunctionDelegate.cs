@@ -1,0 +1,1 @@
+delegate Value FunctionDelegate(List<Value> values, Position position);
