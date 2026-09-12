@@ -42,9 +42,10 @@ class Compiler
     Dictionary<string, bool> _compiledFiles = new Dictionary<string, bool>();
 
     const int _indentSize = 4;
-    int _indentLevel = 0;
+    int _indentLevel = 1;
     int _nextAnonymousFunctionIndex = 0;
     int _nextAnonymousRecordIndex = 0;
+    int _nextEnumIndex = 0;
 
     public Compiler()
     {
@@ -107,12 +108,7 @@ class Compiler
                 {
                     Local local = SetLocal(varStmt.Name, varStmt.IsConst, varStmt.Position, out bool created);
 
-                    string expr;
-
-                    if (varStmt.Expr is FunctionExpr functionExpr)
-                        expr = CompileFunction(functionExpr, $"\"{varStmt.Name}\"");
-                    else
-                        expr = CompileExpr(varStmt.Expr);
+                    string expr = CompileVarExpr(varStmt);
 
                     if (created)
                     {
@@ -251,6 +247,12 @@ class Compiler
                         {PosToRuntimePos(memberExpr.Position)});
                     """);
 
+                    break;
+                }
+
+            case ImportStmt importStmt:
+                {
+                    CompileFile(importStmt.FilePath, false, importStmt.Position);
                     break;
                 }
         }
@@ -398,7 +400,7 @@ class Compiler
 
                     foreach (VarStmt varStmt in recordExpr.VarStmts)
                     {
-                        string value = CompileExpr(varStmt.Expr);
+                        string value = CompileVarExpr(varStmt);
                         fields.Add((varStmt, value));
                     }
 
@@ -496,6 +498,33 @@ class Compiler
         EmitLine("};");
 
         return NewValue($"new FunctionObject({name}, [{string.Join(", ", functionExpr.Parameters.Select(x => $"\"{x}\""))}], {functionLocal})");
+    }
+
+    string CompileEnum(EnumExpr enumExpr)
+    {
+        int index = _nextEnumIndex++;
+        string enumLocal = $"_enum_{enumExpr.Name}_{index}";
+        string enumName = $"\"{enumExpr.Name}\"";
+
+        EmitLine($"EnumObject {enumLocal} = new EnumObject({enumName}, new OrderedDictionary<string, EnumValue>");
+        EmitLine("{");
+
+        _indentLevel++;
+
+        for (int i = 0; i < enumExpr.Enums.Count; i++)
+        {
+            string name = $"\"{enumExpr.Enums[i]}\"";
+            string comma = i < enumExpr.Enums.Count - 1 ? "," : "";
+
+            EmitLine($"[{name}] = new EnumValue({enumName}, {name}, {i}){comma}");
+        }
+
+        _indentLevel--;
+
+        EmitLine("});");
+
+        return NewValue(enumLocal);
+
     }
 
     void BeginScope()
@@ -616,5 +645,15 @@ class Compiler
     string PosToRuntimePos(Position position)
     {
         return $"new Position({position.Line}, {position.Column}, \"{position.Source}\")";
+    }
+
+    string CompileVarExpr(VarStmt varStmt)
+    {
+        if (varStmt.Expr is FunctionExpr functionExpr)
+            return CompileFunction(functionExpr, $"\"{varStmt.Name}\"");
+        else if (varStmt.Expr is EnumExpr enumExpr)
+            return CompileEnum(enumExpr);
+        else
+            return CompileExpr(varStmt.Expr);
     }
 }

@@ -93,7 +93,16 @@ class SourceGenerator
 
         result.AppendLine();
 
-        result.AppendLine(generated);
+        result.AppendLine($$"""
+        try
+        {
+        {{generated}}
+        }
+        catch (Error e)
+        {
+            e.Exit();
+        }
+        """);
 
         result.AppendLine(strippedResult.ToString());
 

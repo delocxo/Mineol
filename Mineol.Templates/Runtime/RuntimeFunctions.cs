@@ -60,41 +60,16 @@ static class RuntimeFunctions
     public static Value MemberGet(Value target, string memberName, Position position)
     {
         if (target.IsRecord())
+            return GetRecordMember(target, memberName, position);
+
+        if (target.IsEnum())
         {
-            RecordObject recordObject = target.RecordObject;
+            EnumObject enumObject = target.EnumObject;
 
-            if (recordObject.Fields.TryGetValue(memberName, out RecordField? field))
-            {
-                Value value = field.Value;
+            if (enumObject.Members.TryGetValue(memberName, out EnumValue? enumValue))
+                return new Value(enumValue);
 
-                if (value.IsFunction())
-                {
-                    FunctionObject function = value.FunctionObject;
-
-                    if (function.Arity > 0 && function.Parameters[0] == "self")
-                    {
-                        List<string> parameters = function.Parameters
-                            .Skip(1)
-                            .ToList();
-
-                        return new Value(
-                            new FunctionObject(
-                                memberName,
-                                parameters,
-                                (args, callPos) =>
-                                {
-                                    List<Value> boundedArgs = [target, .. args];
-                                    return function.Delegate(boundedArgs, callPos);
-                                }
-                            )
-                        );
-                    }
-                }
-
-                return value;
-            }
-
-            throw new Error($"Anonymous record does not contain field '{memberName}'", position);
+            throw new Error($"Enum '{memberName}' does not contain '{memberName}", position);
         }
 
         return Globals.NativeMembers.Get(target, memberName, position);
@@ -119,5 +94,43 @@ static class RuntimeFunctions
         }
 
         Globals.NativeMembers.Set(target, memberName, value, position);
+    }
+
+    static Value GetRecordMember(Value target, string memberName, Position position)
+    {
+        RecordObject recordObject = target.RecordObject;
+
+        if (recordObject.Fields.TryGetValue(memberName, out RecordField? field))
+        {
+            Value value = field.Value;
+
+            if (value.IsFunction())
+            {
+                FunctionObject function = value.FunctionObject;
+
+                if (function.Arity > 0 && function.Parameters[0] == "self")
+                {
+                    List<string> parameters = function.Parameters
+                        .Skip(1)
+                        .ToList();
+
+                    return new Value(
+                        new FunctionObject(
+                            memberName,
+                            parameters,
+                            (args, callPos) =>
+                            {
+                                List<Value> boundedArgs = [target, .. args];
+                                return function.Delegate(boundedArgs, callPos);
+                            }
+                        )
+                    );
+                }
+            }
+
+            return value;
+        }
+
+        throw new Error($"Anonymous record does not contain field '{memberName}'", position);
     }
 }

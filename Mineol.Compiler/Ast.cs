@@ -17,6 +17,7 @@ record ListExpr(List<Expr> Exprs, Position Position) : Expr(Position);
 record IndexExpr(Expr Target, Expr Index, Position Position) : Expr(Position);
 record RecordExpr(List<VarStmt> VarStmts, Position Position) : Expr(Position);
 record MemberExpr(Expr Target, string MemberName, Position Position) : Expr(Position);
+record EnumExpr(string Name, List<string> Enums, Position Position) : Expr(Position);
 
 abstract class Stmt
 {
@@ -141,4 +142,14 @@ class MemberStmt : Stmt
 
     public MemberExpr MemberExpr { get; }
     public Expr Expr { get; }
+}
+
+class ImportStmt : Stmt
+{
+    public ImportStmt(string filePath, Position position) : base(position)
+    {
+        FilePath = filePath;
+    }
+
+    public string FilePath { get; }
 }

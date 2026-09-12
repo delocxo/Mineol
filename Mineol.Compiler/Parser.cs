@@ -49,6 +49,9 @@ class Parser
         else if (Check(TokenType.Return))
             return ParseReturn();
 
+        else if (Check(TokenType.Import))
+            return ParseImport();
+
         throw ThrowUnexpected();
     }
 
@@ -67,6 +70,13 @@ class Parser
         bool isConst = Match(TokenType.Bang);
 
         Expect(TokenType.Equal);
+
+        if (assignee is NameExpr nameExpr1 && Check(TokenType.Enum))
+        {
+            EnumExpr enumExpr = ParseEnum(nameExpr1.Name);
+            Expect(TokenType.Semicolon);
+            return new VarStmt(isConst, enumExpr, nameExpr1.Name, position);
+        }
 
         Expr expr = ParseExpr();
 
@@ -172,6 +182,21 @@ class Parser
         Expect(TokenType.Semicolon);
 
         return new UseStmt(path, position);
+    }
+
+    ImportStmt ParseImport()
+    {
+        Position position = Current().Position;
+
+        Next();
+
+        string path = Current().Lexeme;
+
+        Eat("Expected a string path", TokenType.String);
+
+        Expect(TokenType.Semicolon);
+
+        return new ImportStmt(path, position);
     }
 
     Error ThrowUnexpected()
@@ -337,6 +362,17 @@ class Parser
         }
 
         return new RecordExpr(varStmts, position);
+    }
+
+    EnumExpr ParseEnum(string name)
+    {
+        Position position = Current().Position;
+
+        Next();
+
+        List<string> values = ParseNames(TokenType.End);
+
+        return new EnumExpr(name, values, position);
     }
 
     Expr ParsePrimary()

@@ -24,4 +24,14 @@ class NativeMembers
 
         throw new Error($"{target.KindName} does not contain '{name}'", position);
     }
+
+    public void AddGetter(int kind, MemberGetter memberGetter)
+    {
+        _getters[kind] = memberGetter;
+    }
+
+    public void AddSetter(int kind, MemberSetter memberSetter)
+    {
+        _setters[kind] = memberSetter;
+    }
 }

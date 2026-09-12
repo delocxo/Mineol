@@ -35,3 +35,29 @@ class RecordObject
 
     public OrderedDictionary<string, RecordField> Fields { get; }
 }
+
+class EnumValue
+{
+    public EnumValue(string enumName, string memberName, int value)
+    {
+        EnumName = enumName;
+        MemberName = memberName;
+        Value = value;
+    }
+
+    public string EnumName { get; }
+    public string MemberName { get; }
+    public int Value { get; }
+}
+
+class EnumObject
+{
+    public EnumObject(string name, OrderedDictionary<string, EnumValue> members)
+    {
+        Name = name;
+        Members = members;
+    }
+
+    public string Name { get; }
+    public OrderedDictionary<string, EnumValue> Members { get; }
+}

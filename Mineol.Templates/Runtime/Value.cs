@@ -13,6 +13,8 @@ struct Value
     public FunctionObject FunctionObject => (FunctionObject)Object!;
     public List<Value> List => (List<Value>)Object!;
     public RecordObject RecordObject => (RecordObject)Object!;
+    public EnumObject EnumObject => (EnumObject)Object!;
+    public EnumValue EnumValue => (EnumValue)Object!;
 
     public Value(long value)
     {
@@ -56,6 +58,18 @@ struct Value
         Object = recordObject;
     }
 
+    public Value(EnumObject enumObject)
+    {
+        Kind = ValueKind.Enum;
+        Object = enumObject;
+    }
+
+    public Value(EnumValue enumValue)
+    {
+        Kind = ValueKind.EnumValue;
+        Object = enumValue;
+    }
+
     public Value(object obj, int kind)
     {
         Kind = kind;
@@ -78,6 +92,8 @@ struct Value
     public bool IsFunction() => KindIs(ValueKind.Function);
     public bool IsList() => KindIs(ValueKind.List);
     public bool IsRecord() => KindIs(ValueKind.Record);
+    public bool IsEnum() => KindIs(ValueKind.Enum);
+    public bool IsEnumValue() => KindIs(ValueKind.EnumValue);
 
     public string ExpectString(string message, Position position)
     {
@@ -132,6 +148,12 @@ struct Value
             return $"{{ {string.Join(", ", contents)} }}";
         }
 
+        else if (IsEnum())
+            return $"<enum {EnumObject.Name}>";
+
+        else if (IsEnumValue())
+            return $"{EnumValue.EnumName}.{EnumValue.MemberName}";
+
         return "invalid type";
     }
 
@@ -167,6 +189,13 @@ struct Value
 
         else if (IsList() && other.IsList())
             return List == other.List;
+
+        else if (IsEnum() && other.IsEnum())
+            return EnumObject == other.EnumObject;
+
+        else if (IsEnumValue() && other.IsEnumValue())
+            return EnumValue.EnumName == other.EnumValue.EnumName
+                && EnumValue.MemberName == other.EnumValue.MemberName;
 
         return false;
     }

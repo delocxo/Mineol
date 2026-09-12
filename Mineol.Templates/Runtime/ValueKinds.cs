@@ -24,6 +24,8 @@ static class ValueKind
     public static int Function = Register("function");
     public static int List = Register("list");
     public static int Record = Register("record");
+    public static int Enum = Register("enum");
+    public static int EnumValue = Register("enumvalue");
 
     public static int Register(string name)
     {

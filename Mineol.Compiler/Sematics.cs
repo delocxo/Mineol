@@ -146,7 +146,7 @@ class Sematics
             foreach (VarStmt varStmt in recordExpr.VarStmts)
             {
                 if (!fields.Add(varStmt.Name))
-                    throw new Error($"'{varStmt.Name}' is a duplicate record parameter", varStmt.Position);
+                    throw new Error($"'{varStmt.Name}' is a duplicate record field", varStmt.Position);
 
                 CheckExpr(varStmt.Expr);
             }
@@ -156,5 +156,8 @@ class Sematics
         {
             CheckExpr(memberExpr.Target);
         }
+
+        else if (expr is EnumExpr enumExpr)
+            enumExpr.Enums.ThrowIfDuplicates((x) => $"{x} is a duplicate enum value of '{enumExpr.Name}'", enumExpr.Position);
     }
 }

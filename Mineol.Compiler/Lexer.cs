@@ -22,7 +22,9 @@ class Lexer
             { "function", TokenType.Function },
             { "return", TokenType.Return },
             { "use", TokenType.Use },
-            { "record", TokenType.Record }
+            { "record", TokenType.Record },
+            { "enum", TokenType.Enum },
+            { "import", TokenType.Import }
         };
 
     static Dictionary<string, TokenType> s_symbols = new Dictionary<string, TokenType>()
