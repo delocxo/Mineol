@@ -339,7 +339,7 @@ class Compiler
                             return $"""
                             Arithmetic.And(
                             {aLeft},
-                                () => {aRight})
+                                () => {expr1})
                             """;
                         }
 
@@ -365,7 +365,7 @@ class Compiler
                             return $"""
                             Arithmetic.Or(
                             {aLeft},
-                                () => {aRight})
+                                () => {expr1})
                             """;
                         }
 

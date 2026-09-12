@@ -9,7 +9,7 @@ static class Arithmetic
 
             try
             {
-                return new Value(unchecked(left.Int + right.Int));
+                return new Value(checked(left.Int + right.Int));
             }
             catch (OverflowException)
             {
@@ -32,7 +32,7 @@ static class Arithmetic
 
             try
             {
-                return new Value(unchecked(left.Int - right.Int));
+                return new Value(checked(left.Int - right.Int));
             }
             catch (OverflowException)
             {
@@ -52,7 +52,7 @@ static class Arithmetic
 
             try
             {
-                return new Value(unchecked(left.Int * right.Int));
+                return new Value(checked(left.Int * right.Int));
             }
             catch (OverflowException)
             {
@@ -72,7 +72,7 @@ static class Arithmetic
 
             try
             {
-                return new Value(unchecked(left.Int / right.Int));
+                return new Value(checked(left.Int / right.Int));
             }
             catch (DivideByZeroException)
             {
@@ -96,7 +96,7 @@ static class Arithmetic
 
             try
             {
-                return new Value(unchecked(left.Int % right.Int));
+                return new Value(checked(left.Int % right.Int));
             }
             catch (DivideByZeroException)
             {
