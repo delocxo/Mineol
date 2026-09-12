@@ -111,6 +111,40 @@ struct Value
         return Int;
     }
 
+    public long ExpectIntInRangeEx(string message, long min, long max, Position position)
+    {
+        if (!IsInt())
+            throw new Error("Expected an int", position);
+
+        if (Int < min || Int >= max)
+            throw new Error(message, position);
+
+        return Int;
+    }
+
+    public long ExpectIntInRangeEx(long min, long max, Position position)
+    {
+        return ExpectIntInRangeEx("Int out of range", min, max, position);
+    }
+
+    public long ExpectIntInRangeIn(string message, long min, long max, Position position)
+    {
+        if (!IsInt())
+            throw new Error("Expected an int", position);
+
+        if (Int < min || Int > max)
+            throw new Error(message, position);
+
+        return Int;
+    }
+
+    public long ExpectIntInRangeIn(long min, long max, Position position)
+    {
+        return ExpectIntInRangeIn("Int out of range", min, max, position);
+    }
+
+    public T As<T>() => (T)Object!;
+
     public override string ToString()
     {
         if (KindIs(ValueKind.Int))
@@ -154,7 +188,7 @@ struct Value
         else if (IsEnumValue())
             return $"{EnumValue.EnumName}.{EnumValue.MemberName}";
 
-        return "invalid type";
+        return Globals.KindOperations.ToString(this);
     }
 
     public string ToStringWithQuotes()
@@ -200,7 +234,7 @@ struct Value
             return EnumValue.EnumName == other.EnumValue.EnumName
                 && EnumValue.MemberName == other.EnumValue.MemberName;
 
-        return false;
+        return Globals.KindOperations.Equals(this, other);
     }
 
     public bool IsTruthy()
@@ -226,5 +260,12 @@ struct Value
             return Bool ? 0 : 1;
 
         return 0;
+    }
+
+    public static Value FromFunction(
+        string name, List<string> parameters,
+        FunctionDelegate @delegate)
+    {
+        return new Value(new FunctionObject(name, parameters, @delegate));
     }
 }

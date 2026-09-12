@@ -17,9 +17,6 @@ static class RuntimeFunctions
 
     public static Value IndexGet(Value target, Value index, Position position)
     {
-        if (!target.IsString() && !target.IsList())
-            throw new Error($"{target.KindName} cannot be index read", position);
-
         long rawIndex = index.ExpectInt("Expected an int indexer", position);
 
         if (target.IsList())
@@ -31,7 +28,7 @@ static class RuntimeFunctions
 
             return list[(int)rawIndex];
         }
-        else
+        else if (target.IsString())
         {
             string str = target.String;
 
@@ -40,21 +37,27 @@ static class RuntimeFunctions
 
             return new Value(str[(int)rawIndex].ToString());
         }
+
+        return Globals.KindOperations.GetIndex(target, index, position);
     }
 
     public static void IndexSet(Value target, Value index, Value value, Position position)
     {
-        if (!target.IsList())
-            throw new Error($"{target.KindName} cannot be index set", position);
+        if (target.IsList())
+        {
+            long rawIndex = index.ExpectInt("Expected an int indexer", position);
 
-        long rawIndex = index.ExpectInt("Expected an int indexer", position);
+            List<Value> list = target.List;
 
-        List<Value> list = target.List;
+            if (rawIndex < 0 || rawIndex >= list.Count)
+                throw new Error("Index out of list range", position);
 
-        if (rawIndex < 0 || rawIndex >= list.Count)
-            throw new Error("Index out of list range", position);
+            list[(int)rawIndex] = value;
 
-        list[(int)rawIndex] = value;
+            return;
+        }
+
+        Globals.KindOperations.SetIndex(target, index, value, position);
     }
 
     public static Value MemberGet(Value target, string memberName, Position position)
@@ -72,7 +75,7 @@ static class RuntimeFunctions
             throw new Error($"Enum '{memberName}' does not contain '{memberName}", position);
         }
 
-        return Globals.NativeMembers.Get(target, memberName, position);
+        return Globals.KindOperations.GetMember(target, memberName, position);
     }
 
     public static void MemberSet(Value target, string memberName, Value value, Position position)
@@ -93,7 +96,7 @@ static class RuntimeFunctions
             throw new Error($"Anonymous record does not contain field '{memberName}'", position);
         }
 
-        Globals.NativeMembers.Set(target, memberName, value, position);
+        Globals.KindOperations.SetMember(target, memberName, value, position);
     }
 
     static Value GetRecordMember(Value target, string memberName, Position position)

@@ -1,0 +1,103 @@
+delegate Value MemberGetter(Value target, string name, Position position);
+delegate void MemberSetter(Value target, string name, Value value, Position position);
+delegate Value IndexGetter(Value target, Value index, Position position);
+delegate void IndexSetter(Value target, Value index, Value value, Position position);
+delegate bool KindEquality(Value left, Value right);
+delegate string KindToString(Value target);
+
+
+class KindOperations
+{
+    Dictionary<int, MemberGetter> _memberGetters = new Dictionary<int, MemberGetter>();
+    Dictionary<int, MemberSetter> _memberSetters = new Dictionary<int, MemberSetter>();
+
+    Dictionary<int, IndexGetter> _indexGetters = new Dictionary<int, IndexGetter>();
+    Dictionary<int, IndexSetter> _indexSetters = new Dictionary<int, IndexSetter>();
+
+    Dictionary<int, KindEquality> _equalities = new Dictionary<int, KindEquality>();
+    Dictionary<int, KindToString> _toStrings = new Dictionary<int, KindToString>();
+
+    public Value GetMember(Value target, string name, Position position)
+    {
+        if (_memberGetters.TryGetValue(target.Kind, out var getter))
+            return getter(target, name, position);
+
+        throw new Error($"{target.KindName} does not contain '{name}'", position);
+    }
+
+    public void SetMember(Value target, string name, Value value, Position position)
+    {
+        if (_memberSetters.TryGetValue(target.Kind, out var setter))
+        {
+            setter(target, name, value, position);
+            return;
+        }
+
+        throw new Error($"{target.KindName} does not contain '{name}'", position);
+    }
+
+    public Value GetIndex(Value target, Value index, Position position)
+    {
+        if (_indexGetters.TryGetValue(target.Kind, out var getter))
+            return getter(target, index, position);
+
+        throw new Error($"{target.KindName} cannot be indexed", position);
+    }
+
+    public void SetIndex(Value target, Value index, Value value, Position position)
+    {
+        if (_indexSetters.TryGetValue(target.Kind, out var setter))
+        {
+            setter(target, index, value, position);
+            return;
+        }
+
+        throw new Error($"{target.KindName} does not support index assignment", position);
+    }
+
+    public bool Equals(Value left, Value right)
+    {
+        if (_equalities.TryGetValue(left.Kind, out var equality))
+            return equality(left, right);
+
+        return false;
+    }
+
+    public string ToString(Value target)
+    {
+        if (_toStrings.TryGetValue(target.Kind, out var toString))
+            return toString(target);
+
+        return target.KindName;
+    }
+
+    public void AddMemberGetter(int kind, MemberGetter memberGetter)
+    {
+        _memberGetters[kind] = memberGetter;
+    }
+
+    public void AddMemberSetter(int kind, MemberSetter memberSetter)
+    {
+        _memberSetters[kind] = memberSetter;
+    }
+
+    public void AddIndexGetter(int kind, IndexGetter indexGetter)
+    {
+        _indexGetters[kind] = indexGetter;
+    }
+
+    public void AddIndexSetter(int kind, IndexSetter indexSetter)
+    {
+        _indexSetters[kind] = indexSetter;
+    }
+
+    public void AddEquality(int kind, KindEquality equality)
+    {
+        _equalities[kind] = equality;
+    }
+
+    public void AddToString(int kind, KindToString toString)
+    {
+        _toStrings[kind] = toString;
+    }
+}

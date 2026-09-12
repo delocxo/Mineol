@@ -1,13 +1,15 @@
 class KindInfo
 {
-    public KindInfo(int id, string name)
+    public KindInfo(int id, string name, bool @protected)
     {
         Id = id;
         Name = name;
+        IsProtected = @protected;
     }
 
     public int Id { get; }
     public string Name { get; }
+    public bool IsProtected { get; }
 }
 
 static class ValueKind
@@ -27,14 +29,14 @@ static class ValueKind
     public static int Enum = Register("enum");
     public static int EnumValue = Register("enumvalue");
 
-    public static int Register(string name)
+    public static int Register(string name, bool @protected = true)
     {
         if (NameToId.TryGetValue(name, out int existing))
             return existing;
 
         int id = s_types.Count;
 
-        s_types.Add(new KindInfo(id, name));
+        s_types.Add(new KindInfo(id, name, @protected));
         NameToId[name] = id;
 
         return id;

@@ -1,43 +1,26 @@
 class GeneralNative : INative
 {
-    public string[] Kinds => [];
+    public string[] Kinds { get; } = [];
 
-    public void Register(Dictionary<string, Value> globals, NativeMembers nativeMembers)
+    public void RegiserKindOperations(KindOperations kindOperations)
     {
-        globals.AddFunction("kindof", ["value"], (args, pos) =>
+    }
+
+    public void Register(Dictionary<string, Value> globals)
+    {
+        globals.AddFunction("kind_of", ["value"], (args, pos) =>
         {
             return new Value(args[0].KindName);
         });
 
-        globals.AddFunction("assert", ["condition", "err_msg"], (args, pos) =>
+        globals.AddFunction("kind_is", ["value", "kind"], (args, pos) =>
         {
-            if (args[0].IsTruthy())
-                return Value.Null;
-
-            throw new Error(args[1].ToString(), pos);
-        });
-
-        globals.AddFunction("iskind", ["value", "kind"], (args, pos) =>
-        {
-            string kindName = args[1].ExpectString("Expected a string", pos);
+            string kindName = args[1].ExpectString("Expected a kind name", pos);
 
             if (!ValueKind.NameToId.TryGetValue(kindName, out int kind))
-                throw new Error($"'{kindName}' is an invalid kind", pos);
+                throw new Error($"'{kindName}' is not a valid kind", pos);
 
             return new Value(args[0].Kind == kind);
-        });
-
-        globals.AddFunction("len", ["value"], (args, pos) =>
-        {
-            Value target = args[0];
-
-            if (target.IsList())
-                return new Value(target.List.Count);
-
-            else if (target.IsString())
-                return new Value(target.String.Length);
-
-            throw new Error($"Cannot get the length of {target.KindName}", pos);
         });
     }
 }

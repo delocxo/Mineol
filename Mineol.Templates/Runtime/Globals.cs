@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 static class Globals
 {
     public static Dictionary<string, Value> Values { get; } = new Dictionary<string, Value>();
-    public static NativeMembers NativeMembers { get; } = new NativeMembers();
+    public static KindOperations KindOperations { get; } = new KindOperations();
 
     public static Value GetGlobal(string name, Position position)
     {
@@ -49,10 +49,19 @@ static class Globals
 
         foreach (INative native in natives)
             foreach (string kind in native.Kinds)
-                ValueKind.Register(kind);
+            {
+                if (ValueKind.NameToId.TryGetValue(kind, out int kindId))
+                    if (ValueKind.Get(kindId).IsProtected)
+                        throw new InvalidOperationException($"{kind} is a protected type and cant be overwritten");
+
+                ValueKind.Register(kind, false);
+            }
 
         foreach (INative native in natives)
-            native.Register(Values, NativeMembers);
+        {
+            native.Register(Values);
+            native.RegiserKindOperations(KindOperations);
+        }
     }
 
 }
