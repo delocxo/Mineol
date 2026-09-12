@@ -45,7 +45,10 @@ class SourceGenerator
                     diagnostics.Select(x => x.ToString())
                 );
 
-                throw new Error(message, use.position);
+                throw new Error($$"""
+                Imported native: '{{use.Path}}' Has Invalid CSharp Code
+                {{message}}
+                """, use.position);
             }
 
             runtimeAndUsesCombined.AppendLine(contents);
@@ -63,14 +66,20 @@ class SourceGenerator
         {
             string trimmed = line.Trim();
 
-            if (trimmed.StartsWith("global using"))
+            var lineRoot = CSharpSyntaxTree
+                .ParseText(trimmed)
+                .GetCompilationUnitRoot();
+
+            if (lineRoot.Usings.Count > 0)
             {
-                usings.Add(trimmed["global ".Length..]);
+                string @using = lineRoot.Usings[0].ToString();
+
+                if (@using.StartsWith("global "))
+                    @using = @using["global ".Length..];
+
+                usings.Add(@using);
             }
-            else if (trimmed.StartsWith("using "))
-            {
-                usings.Add(trimmed);
-            }
+
             else if (trimmed.StartsWith("// #:package "))
             {
                 packages.Add(trimmed["// ".Length..]);
@@ -97,13 +106,19 @@ class SourceGenerator
         try
         {
         {{generated}}
+            return 0;
         }
         catch (Error e)
         {
             e.Exit();
+            return 1;
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine($"Internal runtime error: {e.Message}");
+            return 1;
         }
         """);
-
         result.AppendLine(strippedResult.ToString());
 
         return result.ToString();

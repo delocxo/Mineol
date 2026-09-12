@@ -190,6 +190,9 @@ struct Value
         else if (IsList() && other.IsList())
             return List == other.List;
 
+        else if (IsRecord() && other.IsRecord())
+            return RecordObject == other.RecordObject;
+
         else if (IsEnum() && other.IsEnum())
             return EnumObject == other.EnumObject;
 

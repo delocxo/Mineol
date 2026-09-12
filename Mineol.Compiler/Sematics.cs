@@ -34,6 +34,9 @@ class Sematics
             if (stmt is IfStmt ifStmt)
                 CheckIfStmt(ifStmt);
 
+            else if (stmt is VarStmt varStmt)
+                CheckExpr(varStmt.Expr);
+
             else if (stmt is WhileStmt whileStmt)
                 CheckWhileStmt(whileStmt);
 
@@ -47,10 +50,10 @@ class Sematics
             {
                 if (returnStmt.Expr != null)
                     CheckExpr(returnStmt.Expr);
-
-                else if (stmt is CallStmt callStmt)
-                    CheckExpr(callStmt.CallExpr);
             }
+
+            else if (stmt is CallStmt callStmt)
+                CheckExpr(callStmt.CallExpr);
 
             else if (stmt is IndexStmt indexStmt)
             {

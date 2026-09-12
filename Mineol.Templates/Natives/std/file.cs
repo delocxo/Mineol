@@ -21,7 +21,7 @@ class FileNative : INative
         globals.AddFunction("file_write", ["path", "content"], (args, pos) =>
         {
             string filePath = args[0].ExpectString("Expected string file path", pos);
-            Value content = args[0];
+            Value content = args[1];
             try
             {
                 File.WriteAllText(filePath, content.ToString());
@@ -36,7 +36,7 @@ class FileNative : INative
         globals.AddFunction("file_append", ["path", "content"], (args, pos) =>
         {
             string filePath = args[0].ExpectString("Expected string file path", pos);
-            Value content = args[0];
+            Value content = args[1];
             try
             {
                 File.AppendAllText(filePath, content.ToString());

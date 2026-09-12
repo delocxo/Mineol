@@ -46,6 +46,7 @@ class Compiler
     int _nextAnonymousFunctionIndex = 0;
     int _nextAnonymousRecordIndex = 0;
     int _nextEnumIndex = 0;
+    int _functionDepth = 0;
 
     public Compiler()
     {
@@ -108,13 +109,18 @@ class Compiler
                 {
                     Local local = SetLocal(varStmt.Name, varStmt.IsConst, varStmt.Position, out bool created);
 
+                    bool isFunctionExpr = varStmt.Expr is FunctionExpr;
+
+                    if (isFunctionExpr)
+                        EmitLine($"Value {local.MangledName} = Value.Null;");
+
                     string expr = CompileVarExpr(varStmt);
 
                     if (created)
                     {
                         if (local.IsConst)
                             EmitLine("// Constant Variable");
-                        EmitLine($"Value {local.MangledName} = {expr};");
+                        EmitLine($"{(isFunctionExpr ? "" : "Value ")}{local.MangledName} = {expr};");
                     }
                     else
                         EmitLine($"{local.MangledName} = {expr};");
@@ -184,7 +190,7 @@ class Compiler
                     if (returnStmt.Expr != null)
                     {
                         string expr = CompileExpr(returnStmt.Expr);
-                        if (AtTopLevel)
+                        if (_functionDepth <= 0)
                             EmitLine($"return {expr}.GetExitCode();");
                         else
                             EmitLine($"return {expr};");
@@ -324,23 +330,53 @@ class Compiler
                     if (binaryExpr.Op == TokenType.And)
                     {
                         string aLeft = Indent(CompileExpr(binaryExpr.Left));
-                        string aRight = IndentContinuation(CompileExpr(binaryExpr.Right));
+                        var aRight = CompileCapturedExpr(binaryExpr.Right);
 
-                        return $"""
+                        if (string.IsNullOrWhiteSpace(aRight.Emitted))
+                        {
+                            string expr1 = IndentContinuation(aRight.Expr);
+
+                            return $"""
+                            Arithmetic.And(
+                            {aLeft},
+                                () => {aRight})
+                            """;
+                        }
+
+                        return $$"""
                         Arithmetic.And(
-                        {aLeft},
-                            () => {aRight})
+                        {{aLeft}},
+                            () => 
+                            {
+                        {{IndentBy(aRight.Emitted.Trim(), 2)}}
+                            return {{IndentContinuation(aRight.Expr)}};
+                            })
                         """;
                     }
                     else if (binaryExpr.Op == TokenType.Or)
                     {
                         string aLeft = Indent(CompileExpr(binaryExpr.Left));
-                        string aRight = IndentContinuation(CompileExpr(binaryExpr.Right));
+                        var aRight = CompileCapturedExpr(binaryExpr.Right);
 
-                        return $"""
+                        if (string.IsNullOrWhiteSpace(aRight.Emitted))
+                        {
+                            string expr1 = IndentContinuation(aRight.Expr);
+
+                            return $"""
+                            Arithmetic.Or(
+                            {aLeft},
+                                () => {aRight})
+                            """;
+                        }
+
+                        return $$"""
                         Arithmetic.Or(
-                        {aLeft},
-                            () => {aRight})
+                        {{aLeft}},
+                            () => 
+                            {
+                        {{IndentBy(aRight.Emitted.Trim(), 2)}}
+                            return {{IndentContinuation(aRight.Expr)}};
+                            })
                         """;
                     }
 
@@ -398,8 +434,9 @@ class Compiler
 
                     List<(VarStmt Var, string Value)> fields = new List<(VarStmt Var, string Value)>();
 
-                    foreach (VarStmt varStmt in recordExpr.VarStmts)
+                    for (int i = recordExpr.VarStmts.Count - 1; i >= 0; i--)
                     {
+                        VarStmt varStmt = recordExpr.VarStmts[i];
                         string value = CompileVarExpr(varStmt);
                         fields.Add((varStmt, value));
                     }
@@ -488,7 +525,11 @@ class Compiler
             EmitLine($"Value {local.MangledName} = args[{i}];");
         }
 
+        _functionDepth++;
+
         CompileStmts(functionExpr.Stmts);
+
+        _functionDepth--;
 
         if (functionExpr.Stmts.Count == 0 || functionExpr.Stmts.Last() is not ReturnStmt)
             EmitLine("return Value.Null;");
@@ -627,6 +668,12 @@ class Compiler
         return string.Join('\n', text.Replace("\r\n", "\n").Split('\n').Select(line => padding + line));
     }
 
+    string IndentBy(string text, int levels)
+    {
+        string padding = new string(' ', _indentSize * levels);
+        return string.Join('\n', text.Replace("\r\n", "\n").Split('\n').Select(line => padding + line));
+    }
+
     string IndentContinuation(string text)
     {
         string padding = new string(' ', _indentSize);
@@ -655,5 +702,19 @@ class Compiler
             return CompileEnum(enumExpr);
         else
             return CompileExpr(varStmt.Expr);
+    }
+
+    (string Expr, string Emitted) CompileCapturedExpr(Expr expr)
+    {
+        int start = StringBuilder.Length;
+
+        string result = CompileExpr(expr);
+
+        string emitted = StringBuilder
+            .ToString(start, StringBuilder.Length - start);
+
+        StringBuilder.Length = start;
+
+        return (result, emitted);
     }
 }

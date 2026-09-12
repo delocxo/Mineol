@@ -9,7 +9,7 @@ static class Arithmetic
 
             try
             {
-                return new Value(left.Int + right.Int);
+                return new Value(unchecked(left.Int + right.Int));
             }
             catch (OverflowException)
             {
@@ -32,7 +32,7 @@ static class Arithmetic
 
             try
             {
-                return new Value(left.Int - right.Int);
+                return new Value(unchecked(left.Int - right.Int));
             }
             catch (OverflowException)
             {
@@ -52,7 +52,7 @@ static class Arithmetic
 
             try
             {
-                return new Value(left.Int * right.Int);
+                return new Value(unchecked(left.Int * right.Int));
             }
             catch (OverflowException)
             {
@@ -72,7 +72,7 @@ static class Arithmetic
 
             try
             {
-                return new Value(left.Int / right.Int);
+                return new Value(unchecked(left.Int / right.Int));
             }
             catch (DivideByZeroException)
             {
@@ -96,7 +96,7 @@ static class Arithmetic
 
             try
             {
-                return new Value(left.Int % right.Int);
+                return new Value(unchecked(left.Int % right.Int));
             }
             catch (DivideByZeroException)
             {
@@ -115,7 +115,10 @@ static class Arithmetic
     {
         if (left.IsNumber() && right.IsNumber())
         {
-            return new Value(left.AsFloat() < right.AsFloat());
+            if (left.IsFloat() || right.IsFloat())
+                return new Value(left.AsFloat() < right.AsFloat());
+
+            return new Value(left.Int < right.Int);
         }
 
         throw BinaryError(left, right, "<", position);
@@ -125,7 +128,10 @@ static class Arithmetic
     {
         if (left.IsNumber() && right.IsNumber())
         {
-            return new Value(left.AsFloat() > right.AsFloat());
+            if (left.IsFloat() || right.IsFloat())
+                return new Value(left.AsFloat() > right.AsFloat());
+
+            return new Value(left.Int > right.Int);
         }
 
         throw BinaryError(left, right, ">", position);
@@ -135,7 +141,10 @@ static class Arithmetic
     {
         if (left.IsNumber() && right.IsNumber())
         {
-            return new Value(left.AsFloat() <= right.AsFloat());
+            if (left.IsFloat() || right.IsFloat())
+                return new Value(left.AsFloat() <= right.AsFloat());
+
+            return new Value(left.Int <= right.Int);
         }
 
         throw BinaryError(left, right, "<=", position);
@@ -145,7 +154,10 @@ static class Arithmetic
     {
         if (left.IsNumber() && right.IsNumber())
         {
-            return new Value(left.AsFloat() >= right.AsFloat());
+            if (left.IsFloat() || right.IsFloat())
+                return new Value(left.AsFloat() >= right.AsFloat());
+
+            return new Value(left.Int >= right.Int);
         }
 
         throw BinaryError(left, right, ">=", position);

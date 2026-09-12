@@ -18,10 +18,16 @@ class Parser
         while (Check(TokenType.Use))
             stmts.Add(ParseUse());
 
+        while (Check(TokenType.Import))
+            stmts.Add(ParseImport());
+
         while (NotAtEnd())
         {
             if (Check(TokenType.Use))
                 throw new Error("'use' must appear before all other statements", Current().Position);
+
+            if (Check(TokenType.Import))
+                throw new Error("'import' must appear before all other statements besides 'use'", Current().Position);
 
             stmts.Add(ParseStmt());
         }
@@ -48,9 +54,6 @@ class Parser
 
         else if (Check(TokenType.Return))
             return ParseReturn();
-
-        else if (Check(TokenType.Import))
-            return ParseImport();
 
         throw ThrowUnexpected();
     }
@@ -473,7 +476,7 @@ class Parser
 
     Expr ParseUnary()
     {
-        if (Check(TokenType.Sub, TokenType.Bang, TokenType.Mul, TokenType.BitwiseNot))
+        if (Check(TokenType.Sub, TokenType.Bang, TokenType.BitwiseNot))
         {
             Token op = Current();
 

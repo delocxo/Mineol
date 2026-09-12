@@ -90,6 +90,12 @@ class Lexer
 
         while (NotAtEnd())
         {
+            if (char.IsWhiteSpace(Char()))
+            {
+                Next();
+                continue;
+            }
+
             if (NotAtEnd(1))
             {
                 string doubleChar = $"{Char(0)}{Char(1)}";
@@ -135,7 +141,7 @@ class Lexer
                 continue;
             }
 
-            Next();
+            throw new Error($"Unexpected character '{Char()}'", _currentPos);
         }
 
         tokens.Add(new Token(TokenType.Eof, "End of File", _currentPos));
