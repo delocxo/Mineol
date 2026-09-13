@@ -27,6 +27,20 @@ class ListNative : INative
                         }
                     );
 
+                case "try_push":
+                    return Value.FromFunction(
+                        "try_push",
+                        ["value"],
+                        (args, pos) =>
+                        {
+                            for (int i = 0; i < list.Count; i++)
+                                if (args[0].CheckEquality(list[i]))
+                                    return Value.False;
+                            list.Add(args[0]);
+                            return Value.True;
+                        }
+                    );
+
                 case "remove":
                     return Value.FromFunction(
                         "remove",
