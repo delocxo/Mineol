@@ -434,7 +434,7 @@ class Compiler
 
                     List<(VarStmt Var, string Value)> fields = new List<(VarStmt Var, string Value)>();
 
-                    for (int i = recordExpr.VarStmts.Count - 1; i >= 0; i--)
+                    for (int i = 0; i >= 0; i++)
                     {
                         VarStmt varStmt = recordExpr.VarStmts[i];
                         string value = CompileVarExpr(varStmt);
