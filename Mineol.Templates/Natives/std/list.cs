@@ -27,6 +27,18 @@ class ListNative : INative
                         }
                     );
 
+                case "push_list":
+                    return Value.FromFunction(
+                        "push",
+                        ["other_list"],
+                        (args, pos) =>
+                        {
+                            List<Value> other = args[0].ExpectList(pos);
+                            list.AddRange(other);
+                            return target;
+                        }
+                    );
+
                 case "try_push":
                     return Value.FromFunction(
                         "try_push",

@@ -12,6 +12,7 @@ class FunctionObject
     public FunctionDelegate Delegate { get; }
 
     public int Arity => Parameters.Count;
+    public string GetName() => Name != "" ? Name : "";
 }
 
 class RecordField

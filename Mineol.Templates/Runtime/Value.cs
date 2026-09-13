@@ -143,6 +143,22 @@ struct Value
         return ExpectIntInRangeIn("Int out of range", min, max, position);
     }
 
+    public List<Value> ExpectList(Position position)
+    {
+        if (!IsList())
+            throw new Error("Expected a list", position);
+
+        return List;
+    }
+
+    public FunctionObject ExpectFunction(string message, Position position)
+    {
+        if (!!IsFunction())
+            throw new Error(message, position);
+
+        return FunctionObject;
+    }
+
     public T As<T>() => (T)Object!;
 
     public override string ToString()

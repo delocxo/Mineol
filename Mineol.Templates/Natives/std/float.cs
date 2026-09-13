@@ -11,25 +11,74 @@ class FloatNative : INative
             switch (memberName)
             {
                 case "is_int":
-                    return new Value(double.IsInteger(value));
+                    return Value.FromFunction(
+                        "is_int",
+                        [],
+                        (args, pos) =>
+                        {
+                            return new Value(double.IsInteger(value));
+                        }
+                    );
 
                 case "is_nan":
-                    return new Value(double.IsNaN(value));
+                    return Value.FromFunction(
+                        "is_nan",
+                        [],
+                        (args, pos) =>
+                        {
+                            return new Value(double.IsNaN(value));
+                        }
+                    );
 
                 case "is_infinity":
-                    return new Value(double.IsInfinity(value));
+                    return Value.FromFunction(
+                        "is_infinity",
+                        [],
+                        (args, pos) =>
+                        {
+                            return new Value(double.IsInfinity(value));
+                        }
+                    );
 
                 case "is_positive_infinity":
-                    return new Value(double.IsPositiveInfinity(value));
+                    return Value.FromFunction(
+                        "is_positive_infinity",
+                        [],
+                        (args, pos) =>
+                        {
+                            return new Value(double.IsPositiveInfinity(value));
+                        }
+                    );
 
                 case "is_negative_infinity":
-                    return new Value(double.IsNegativeInfinity(value));
+                    return Value.FromFunction(
+                        "is_negative_infinity",
+                        [],
+                        (args, pos) =>
+                        {
+                            return new Value(double.IsNegativeInfinity(value));
+                        }
+                    );
 
                 case "is_finite":
-                    return new Value(double.IsFinite(value));
+                    return Value.FromFunction(
+                        "is_finite",
+                        [],
+                        (args, pos) =>
+                        {
+                            return new Value(double.IsFinite(value));
+                        }
+                    );
 
                 case "is_real_number":
-                    return new Value(double.IsRealNumber(value));
+                    return Value.FromFunction(
+                        "is_real_number",
+                        [],
+                        (args, pos) =>
+                        {
+                            return new Value(double.IsRealNumber(value));
+                        }
+                    );
             }
 
             throw new Error($"{target.KindName} does not contain '{memberName}'", pos);

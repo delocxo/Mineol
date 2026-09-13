@@ -691,7 +691,7 @@ class Compiler
 
     string PosToRuntimePos(Position position)
     {
-        return $"new Position({position.Line}, {position.Column}, \"{position.Source}\")";
+        return $"new Position({position.Line}, {position.Column}, \"{ToCSharpString(position.Source)}\")";
     }
 
     string CompileVarExpr(VarStmt varStmt)
