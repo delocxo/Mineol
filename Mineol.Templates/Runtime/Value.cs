@@ -262,6 +262,53 @@ struct Value
         return 0;
     }
 
+    public int GetHash(Position position)
+    {
+        if (TryGetHash(out int hash))
+            return hash;
+
+        throw new Error($"{KindName} is not hashable", position);
+    }
+
+    public override int GetHashCode()
+    {
+        if (TryGetHash(out int hash))
+            return hash;
+
+        throw new InvalidOperationException($"{KindName} is not hashable");
+    }
+
+    public bool TryGetHash(out int hash)
+    {
+        if (IsNumber())
+            hash = AsFloat().GetHashCode();
+
+        else if (IsString())
+            hash = String.GetHashCode();
+
+        else if (IsBool())
+            hash = Bool.GetHashCode();
+
+        else if (IsNull())
+            hash = 0;
+
+        else if (IsFunction())
+            hash = FunctionObject.GetHashCode();
+
+        else if (IsList())
+            hash = List.GetHashCode();
+
+        else if (IsRecord())
+            hash = RecordObject.GetHashCode();
+
+        else if (IsEnumValue())
+            hash = EnumValue.GetHashCode();
+        else
+            return Globals.KindOperations.TryGetHash(this, out hash);
+
+        return true;
+    }
+
     public static Value FromFunction(
         string name, List<string> parameters,
         FunctionDelegate @delegate)

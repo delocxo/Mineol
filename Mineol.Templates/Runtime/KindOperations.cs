@@ -4,6 +4,7 @@ delegate Value IndexGetter(Value target, Value index, Position position);
 delegate void IndexSetter(Value target, Value index, Value value, Position position);
 delegate bool KindEquality(Value left, Value right);
 delegate string KindToString(Value target);
+delegate int KindHash(Value target);
 
 
 class KindOperations
@@ -16,6 +17,7 @@ class KindOperations
 
     Dictionary<int, KindEquality> _equalities = new Dictionary<int, KindEquality>();
     Dictionary<int, KindToString> _toStrings = new Dictionary<int, KindToString>();
+    Dictionary<int, KindHash> _kindHashes = new Dictionary<int, KindHash>();
 
     public Value GetMember(Value target, string name, Position position)
     {
@@ -71,6 +73,26 @@ class KindOperations
         return target.KindName;
     }
 
+    public int GetHash(Value target, Position position)
+    {
+        if (_kindHashes.TryGetValue(target.Kind, out var hash))
+            return hash(target);
+
+        throw new Error($"{target.KindName} is not hashable", position);
+    }
+
+    public bool TryGetHash(Value target, out int hashCode)
+    {
+        if (_kindHashes.TryGetValue(target.Kind, out var hash))
+        {
+            hashCode = hash(target);
+            return true;
+        }
+
+        hashCode = 0;
+        return false;
+    }
+
     public void AddMemberGetter(int kind, MemberGetter memberGetter)
     {
         _memberGetters[kind] = memberGetter;
@@ -99,5 +121,10 @@ class KindOperations
     public void AddToString(int kind, KindToString toString)
     {
         _toStrings[kind] = toString;
+    }
+
+    public void AddHash(int kind, KindHash kindHash)
+    {
+        _kindHashes[kind] = kindHash;
     }
 }

@@ -78,6 +78,13 @@ class StringBuilderNative : INative
 
             return sb == right.As<StringBuilder>();
         });
+
+        kindOperations.AddHash(sbKind, (target) =>
+        {
+            return target
+                .As<StringBuilder>()
+                .GetHashCode();
+        });
     }
 
     public void Register(Dictionary<string, Value> globals)

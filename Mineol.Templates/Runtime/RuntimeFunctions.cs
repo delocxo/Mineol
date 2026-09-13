@@ -17,10 +17,10 @@ static class RuntimeFunctions
 
     public static Value IndexGet(Value target, Value index, Position position)
     {
-        long rawIndex = index.ExpectInt("Expected an int indexer", position);
-
         if (target.IsList())
         {
+            long rawIndex = index.ExpectInt("Expected an int indexer", position);
+
             List<Value> list = target.List;
 
             if (rawIndex < 0 || rawIndex >= list.Count)
@@ -30,6 +30,8 @@ static class RuntimeFunctions
         }
         else if (target.IsString())
         {
+            long rawIndex = index.ExpectInt("Expected an int indexer", position);
+
             string str = target.String;
 
             if (rawIndex < 0 || rawIndex >= str.Length)
@@ -135,5 +137,16 @@ static class RuntimeFunctions
         }
 
         throw new Error($"Anonymous record does not contain field '{memberName}'", position);
+    }
+
+    public static Value MakeResultRecord(Value value, bool success)
+    {
+        RecordObject result = new RecordObject(new OrderedDictionary<string, RecordField>
+        {
+            ["success"] = new RecordField(new Value(success), false),
+            ["value"] = new RecordField(value, false)
+        });
+
+        return new Value(result);
     }
 }

@@ -117,6 +117,17 @@ class ListNative : INative
                         }
                     );
 
+                case "reverse":
+                    return Value.FromFunction(
+                        "reverse",
+                        [],
+                        (args, pos) =>
+                        {
+                            list.Reverse();
+                            return target;
+                        }
+                    );
+
                 case "slice":
                     return Value.FromFunction(
                         "slice",

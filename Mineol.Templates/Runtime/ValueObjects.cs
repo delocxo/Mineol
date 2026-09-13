@@ -48,6 +48,11 @@ class EnumValue
     public string EnumName { get; }
     public string MemberName { get; }
     public int Value { get; }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(EnumName, MemberName);
+    }
 }
 
 class EnumObject
