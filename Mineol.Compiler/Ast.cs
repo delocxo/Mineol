@@ -153,3 +153,17 @@ class ImportStmt : Stmt
 
     public string FilePath { get; }
 }
+
+class ForStmt : Stmt
+{
+    public ForStmt(string iterableName, Expr iterable, List<Stmt> body, Position position) : base(position)
+    {
+        IterableName = iterableName;
+        Iterable = iterable;
+        Body = body;
+    }
+
+    public string IterableName { get; }
+    public Expr Iterable { get; }
+    public List<Stmt> Body { get; }
+}

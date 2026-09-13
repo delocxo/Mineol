@@ -101,12 +101,7 @@ class HashMapNative : INative
                             [],
                             (args, pos) =>
                             {
-                                List<Value> list = new List<Value>(hashmap.Count);
-
-                                foreach (var keyValuePair in hashmap)
-                                    list.Add(MakeKeyValuePair(keyValuePair.Key, keyValuePair.Value));
-
-                                return new Value(list);
+                                return HashMapToList(hashmap);
                             }
                         );
 
@@ -245,6 +240,11 @@ class HashMapNative : INative
 
             return $"{{ {string.Join(", ", keyValuePairs)} }}";
         });
+
+        kindOperations.AddIterable(hashMapKind, (target) =>
+        {
+            return HashMapToList(target.As<HashMapObject>().Values).List;
+        });
     }
 
     public void Register(Dictionary<string, Value> globals)
@@ -268,5 +268,15 @@ class HashMapNative : INative
         });
 
         return new Value(keyValuePair);
+    }
+
+    Value HashMapToList(OrderedDictionary<Value, Value> hashmap)
+    {
+        List<Value> list = new List<Value>(hashmap.Count);
+
+        foreach (var keyValuePair in hashmap)
+            list.Add(MakeKeyValuePair(keyValuePair.Key, keyValuePair.Value));
+
+        return new Value(list);
     }
 }

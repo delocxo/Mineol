@@ -55,6 +55,9 @@ class Parser
         else if (Check(TokenType.Return))
             return ParseReturn();
 
+        else if (Check(TokenType.For))
+            return ParseFor();
+
         throw ThrowUnexpected();
     }
 
@@ -200,6 +203,23 @@ class Parser
         Expect(TokenType.Semicolon);
 
         return new ImportStmt(path, position);
+    }
+
+    ForStmt ParseFor()
+    {
+        Position position = Current().Position;
+
+        Next();
+
+        string iterableName = ParseName();
+
+        Expect(TokenType.In);
+
+        Expr iterable = ParseExpr();
+
+        List<Stmt> body = ParseBody();
+
+        return new ForStmt(iterableName, iterable, body, position);
     }
 
     Error ThrowUnexpected()

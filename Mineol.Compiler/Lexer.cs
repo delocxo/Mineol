@@ -24,7 +24,9 @@ class Lexer
             { "use", TokenType.Use },
             { "record", TokenType.Record },
             { "enum", TokenType.Enum },
-            { "import", TokenType.Import }
+            { "import", TokenType.Import },
+            { "for", TokenType.For },
+            { "in", TokenType.In }
         };
 
     static Dictionary<string, TokenType> s_symbols = new Dictionary<string, TokenType>()

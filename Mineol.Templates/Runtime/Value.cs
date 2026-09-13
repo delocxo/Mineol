@@ -325,6 +325,19 @@ struct Value
         return true;
     }
 
+    public List<Value> GetIterable(Position position)
+    {
+        if (IsString())
+            return String
+                .Select(x => new Value(x.ToString()))
+                .ToList();
+
+        else if (IsList())
+            return List;
+
+        return Globals.KindOperations.GetIterable(this, position);
+    }
+
     public static Value FromFunction(
         string name, List<string> parameters,
         FunctionDelegate @delegate)

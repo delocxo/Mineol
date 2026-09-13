@@ -47,6 +47,7 @@ class Compiler
     int _nextAnonymousRecordIndex = 0;
     int _nextEnumIndex = 0;
     int _functionDepth = 0;
+    int _nextForId = 0;
 
     public Compiler()
     {
@@ -261,6 +262,32 @@ class Compiler
                     CompileFile(importStmt.FilePath, false, importStmt.Position);
                     break;
                 }
+
+            case ForStmt forStmt:
+                {
+                    int id = _nextForId++;
+
+                    string iterableName = $"_for_iterable_{id}";
+                    string itemName = $"_for_item_{id}";
+                    string iterable = CompileExpr(forStmt.Iterable);
+
+                    EmitLine($"List<Value> {iterableName} = {iterable}.GetIterable({PosToRuntimePos(forStmt.Position)});");
+
+                    EmitLine($"foreach (Value {itemName} in {iterableName})");
+                    EmitLine("{");
+
+                    BeginScope();
+
+                    Local itemLocal = DeclareLocal(forStmt.IterableName, true, forStmt.Position);
+                    EmitLine($"Value {itemLocal.MangledName} = {itemName};");
+
+                    CompileStmts(forStmt.Body);
+
+                    EndScope();
+                    EmitLine("}");
+
+                    break;
+                }
         }
     }
 
@@ -434,7 +461,7 @@ class Compiler
 
                     List<(VarStmt Var, string Value)> fields = new List<(VarStmt Var, string Value)>();
 
-                    for (int i = 0; i >= 0; i++)
+                    for (int i = 0; i < recordExpr.VarStmts.Count; i++)
                     {
                         VarStmt varStmt = recordExpr.VarStmts[i];
                         string value = CompileVarExpr(varStmt);

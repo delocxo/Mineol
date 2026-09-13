@@ -5,6 +5,7 @@ delegate void IndexSetter(Value target, Value index, Value value, Position posit
 delegate bool KindEquality(Value left, Value right);
 delegate string KindToString(Value target);
 delegate int KindHash(Value target);
+delegate List<Value> KindIterable(Value target);
 
 
 class KindOperations
@@ -18,6 +19,7 @@ class KindOperations
     Dictionary<int, KindEquality> _equalities = new Dictionary<int, KindEquality>();
     Dictionary<int, KindToString> _toStrings = new Dictionary<int, KindToString>();
     Dictionary<int, KindHash> _kindHashes = new Dictionary<int, KindHash>();
+    Dictionary<int, KindIterable> _kindIterables = new Dictionary<int, KindIterable>();
 
     public Value GetMember(Value target, string name, Position position)
     {
@@ -93,6 +95,14 @@ class KindOperations
         return false;
     }
 
+    public List<Value> GetIterable(Value target, Position position)
+    {
+        if (_kindIterables.TryGetValue(target.Kind, out var iterable))
+            return iterable(target);
+
+        throw new Error($"{target.KindName} is not iterable", position);
+    }
+
     public void AddMemberGetter(int kind, MemberGetter memberGetter)
     {
         _memberGetters[kind] = memberGetter;
@@ -126,5 +136,10 @@ class KindOperations
     public void AddHash(int kind, KindHash kindHash)
     {
         _kindHashes[kind] = kindHash;
+    }
+
+    public void AddIterable(int kind, KindIterable kindIterable)
+    {
+        _kindIterables[kind] = kindIterable;
     }
 }

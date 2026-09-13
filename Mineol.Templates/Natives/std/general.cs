@@ -61,6 +61,26 @@ class GeneralNative : INative
         {
             throw new Error(args[0].ToString(), pos);
         });
+
+        globals.AddFunction("enumerate", ["iterable"], (args, pos) =>
+        {
+            List<Value> values = args[0].GetIterable(pos);
+
+            List<Value> result = new List<Value>(values.Count);
+
+            for (int i = 0; i < values.Count; i++)
+            {
+                RecordObject resultItem = new RecordObject(new()
+                {
+                    ["value"] = new RecordField(values[i], false),
+                    ["index"] = new RecordField(new Value(i), false)
+                });
+
+                result.Add(new Value(resultItem));
+            }
+
+            return new Value(result);
+        });
     }
 
     static IEnumerable<Value> Range(int start, int stop, int step, Position position)

@@ -66,6 +66,12 @@ class Sematics
                 CheckExpr(memberStmt.MemberExpr);
                 CheckExpr(memberStmt.Expr);
             }
+
+            else if (stmt is ForStmt forStmt)
+            {
+                CheckExpr(forStmt.Iterable);
+                Check(forStmt.Body);
+            }
         }
     }
 
