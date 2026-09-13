@@ -116,7 +116,7 @@ class HashMapNative : INative
                             [],
                             (args, pos) =>
                             {
-                                OrderedDictionary<Value, Value> copied = new OrderedDictionary<Value, Value>(hashmap, new ValueEqualityComparer());
+                                var copied = new OrderedDictionary<Value, Value>(hashmap, new ValueEqualityComparer());
                                 return new Value(new HashMapObject(copied), hashMapKind);
                             }
                         );
@@ -127,8 +127,7 @@ class HashMapNative : INative
                             [],
                             (args, pos) =>
                             {
-                                OrderedDictionary<Value, Value> copied = new OrderedDictionary<Value, Value>(hashmap, new ValueEqualityComparer());
-                                copied.Reverse();
+                                var copied = new OrderedDictionary<Value, Value>(hashmap.Reverse(), new ValueEqualityComparer());
                                 return new Value(new HashMapObject(copied), hashMapKind);
                             }
                         );
@@ -139,7 +138,15 @@ class HashMapNative : INative
                             [],
                             (args, pos) =>
                             {
-                                hashmap.Reverse();
+                                var reversed = hashmap
+                                    .Reverse()
+                                    .ToList();
+
+                                hashmap.Clear();
+
+                                foreach (var pair in reversed)
+                                    hashmap.Add(pair.Key, pair.Value);
+
                                 return target;
                             }
                         );
