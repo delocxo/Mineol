@@ -1,4 +1,5 @@
 delegate Value MemberGetter(Value target, string name, Position position);
+delegate bool ExtensionMemberGetter(Value target, string name, Position position, out Value value);
 delegate void MemberSetter(Value target, string name, Value value, Position position);
 delegate Value IndexGetter(Value target, Value index, Position position);
 delegate void IndexSetter(Value target, Value index, Value value, Position position);
@@ -7,12 +8,10 @@ delegate string KindToString(Value target);
 delegate int KindHash(Value target);
 delegate List<Value> KindIterable(Value target);
 
-
 class KindOperations
 {
     Dictionary<int, MemberGetter> _memberGetters = new Dictionary<int, MemberGetter>();
     Dictionary<int, MemberSetter> _memberSetters = new Dictionary<int, MemberSetter>();
-
     Dictionary<int, IndexGetter> _indexGetters = new Dictionary<int, IndexGetter>();
     Dictionary<int, IndexSetter> _indexSetters = new Dictionary<int, IndexSetter>();
 
@@ -21,8 +20,16 @@ class KindOperations
     Dictionary<int, KindHash> _kindHashes = new Dictionary<int, KindHash>();
     Dictionary<int, KindIterable> _kindIterables = new Dictionary<int, KindIterable>();
 
+    public List<ExtensionMemberGetter> ExtensionMemberGetters { get; } = new List<ExtensionMemberGetter>();
+
     public Value GetMember(Value target, string name, Position position)
     {
+        foreach (ExtensionMemberGetter extensionMemberGetter in ExtensionMemberGetters)
+        {
+            if (extensionMemberGetter(target, name, position, out Value value))
+                return value;
+        }
+
         if (_memberGetters.TryGetValue(target.Kind, out var getter))
             return getter(target, name, position);
 
@@ -103,6 +110,11 @@ class KindOperations
         throw new Error($"{target.KindName} is not iterable", position);
     }
 
+    public bool HasIterable(int kind)
+    {
+        return _kindIterables.ContainsKey(kind);
+    }
+
     public void AddMemberGetter(int kind, MemberGetter memberGetter)
     {
         _memberGetters[kind] = memberGetter;
@@ -163,5 +175,10 @@ class KindOperations
     public void AddIterable(int kind, KindIterable kindIterable)
     {
         _kindIterables[kind] = kindIterable;
+    }
+
+    public void AddExtensionMemberGetter(ExtensionMemberGetter memberGetter)
+    {
+        ExtensionMemberGetters.Add(memberGetter);
     }
 }

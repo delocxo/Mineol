@@ -358,7 +358,18 @@ class Parser
 
         List<string> parameters = ParseNames(TokenType.LeftParen, TokenType.RightParen);
 
-        List<Stmt> body = ParseBody();
+        List<Stmt> body = new List<Stmt>();
+
+        if (Match(TokenType.Arrow))
+        {
+            Expr expr = ParseExpr();
+
+            ReturnStmt returnStmt = new ReturnStmt(expr, expr.Position);
+
+            body.Add(returnStmt);
+        }
+        else
+            body = ParseBody();
 
         return new FunctionExpr(body, parameters, position);
     }

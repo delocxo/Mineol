@@ -153,10 +153,20 @@ struct Value
 
     public FunctionObject ExpectFunction(string message, Position position)
     {
-        if (!!IsFunction())
+        if (!IsFunction())
             throw new Error(message, position);
 
         return FunctionObject;
+    }
+
+    public void ExpectCallback(Position position)
+    {
+        ExpectFunction("Expected a callback function", position);
+    }
+
+    public void ExpectPredicate(Position position)
+    {
+        ExpectFunction("Expected a predicate function", position);
     }
 
     public T As<T>() => (T)Object!;
@@ -337,6 +347,10 @@ struct Value
 
         return Globals.KindOperations.GetIterable(this, position);
     }
+
+    public bool IsIterable() => IsList()
+        || IsString()
+        || Globals.KindOperations.HasIterable(Kind);
 
     public static Value FromFunction(
         string name, List<string> parameters,

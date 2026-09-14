@@ -103,16 +103,6 @@ class HashMapNative : INative
                             }
                         );
 
-                case "to_list":
-                    return Value.FromFunction(
-                            "to_list",
-                            [],
-                            (args, pos) =>
-                            {
-                                return HashMapToList(hashmap);
-                            }
-                        );
-
                 case "copy":
                     return Value.FromFunction(
                             "copy",

@@ -116,19 +116,6 @@ class StringNative : INative
                         }
                     );
 
-                case "to_char_array":
-                    return Value.FromFunction(
-                        "to_char_array",
-                        [],
-                        (args, pos) =>
-                        {
-                            return new Value(value
-                                .Select(x => new Value(x.ToString()))
-                                .ToList()
-                            );
-                        }
-                    );
-
                 case "slice":
                     return Value.FromFunction(
                         "slice",
