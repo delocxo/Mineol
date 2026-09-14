@@ -119,6 +119,45 @@ class SeqNative : INative
                     );
 
                     return true;
+
+                case "take":
+                    value = Value.FromFunction(
+                        "take",
+                        ["amount"],
+                        (args, pos) =>
+                        {
+                            List<Value> source = target.GetIterable(pos);
+
+                            int amount = (int)args[0].ExpectIntInRangeIn("Invalid take amount", 0, source.Count, pos);
+
+                            List<Value> result = source.GetRange(0, amount);
+
+                            return new Value(result);
+                        }
+                    );
+
+                    return true;
+
+                case "skip":
+                    value = Value.FromFunction(
+                        "skip",
+                        ["amount"],
+                        (args, pos) =>
+                        {
+                            List<Value> source = target.GetIterable(pos);
+
+                            int amount = (int)args[0].ExpectIntInRangeIn("Invalid skip amount", 0, source.Count, pos);
+
+                            List<Value> result = new List<Value>(source.Count - amount);
+
+                            for (int i = amount; i < source.Count; i++)
+                                result.Add(source[i]);
+
+                            return new Value(result);
+                        }
+                    );
+
+                    return true;
             }
 
             value = default;
