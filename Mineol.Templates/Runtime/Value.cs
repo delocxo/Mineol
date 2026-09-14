@@ -83,7 +83,6 @@ struct Value
     public bool KindIs(int kind) => Kind == kind;
     public bool IsNumber() => KindIs(ValueKind.Int) || KindIs(ValueKind.Float);
     public double AsFloat() => KindIs(ValueKind.Float) ? Float : Int;
-    public string KindName => ValueKind.GetName(Kind);
     public bool IsInt() => KindIs(ValueKind.Int);
     public bool IsFloat() => KindIs(ValueKind.Float);
     public bool IsBool() => KindIs(ValueKind.Bool);
@@ -94,6 +93,7 @@ struct Value
     public bool IsRecord() => KindIs(ValueKind.Record);
     public bool IsEnum() => KindIs(ValueKind.Enum);
     public bool IsEnumValue() => KindIs(ValueKind.EnumValue);
+    public string KindName => ValueKind.GetName(Kind);
 
     public string ExpectString(string message, Position position)
     {

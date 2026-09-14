@@ -13,10 +13,18 @@ class StringNative : INative
             switch (memberName)
             {
                 case "length":
-                    return new Value(value.Length);
+                    return Value.FromFunction(
+                        "length",
+                        [],
+                        (args, pos) => new Value(value.Length)
+                    );
 
                 case "is_empty":
-                    return new Value(value.Length == 0);
+                    return Value.FromFunction(
+                        "is_empty",
+                        [],
+                        (args, pos) => new Value(value.Length == 0)
+                    );
 
                 case "is_whitespace":
                     return Value.FromFunction(

@@ -11,10 +11,24 @@ class ListNative : INative
             switch (memberName)
             {
                 case "length":
-                    return new Value(target.List.Count);
+                    return Value.FromFunction(
+                        "length",
+                        [],
+                        (args, pos) =>
+                        {
+                            return new Value(target.List.Count);
+                        }
+                    );
 
                 case "is_empty":
-                    return new Value(target.List.Count == 0);
+                    return Value.FromFunction(
+                        "is_empty",
+                        [],
+                        (args, pos) =>
+                        {
+                            return new Value(target.List.Count == 0);
+                        }
+                    );
 
                 case "push":
                     return Value.FromFunction(

@@ -23,10 +23,18 @@ class HashMapNative : INative
             switch (memberName)
             {
                 case "count":
-                    return new Value(hashmap.Count);
+                    return Value.FromFunction(
+                        "count",
+                        [],
+                        (args, pos) => new Value(hashmap.Count)
+                    );
 
                 case "is_empty":
-                    return new Value(hashmap.Count == 0);
+                    return Value.FromFunction(
+                        "is_empty",
+                        [],
+                        (args, pos) => new Value(hashmap.Count == 0)
+                    );
 
                 case "contains_key":
                     return Value.FromFunction(

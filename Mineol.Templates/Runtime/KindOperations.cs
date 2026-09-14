@@ -128,6 +128,20 @@ class KindOperations
         _equalities[kind] = equality;
     }
 
+    public void AddDefaultEquality<T>(int kind)
+    {
+        _equalities[kind] = (left, right) =>
+        {
+            if (!right.KindIs(kind))
+                return false;
+
+            T leftObj = left.As<T>();
+            T rightObj = right.As<T>();
+
+            return EqualityComparer<T>.Default.Equals(leftObj, rightObj);
+        };
+    }
+
     public void AddToString(int kind, KindToString toString)
     {
         _toStrings[kind] = toString;
@@ -136,6 +150,14 @@ class KindOperations
     public void AddHash(int kind, KindHash kindHash)
     {
         _kindHashes[kind] = kindHash;
+    }
+
+    public void AddDefaultHash(int kind)
+    {
+        _kindHashes[kind] = (target) =>
+        {
+            return target.Object!.GetHashCode();
+        };
     }
 
     public void AddIterable(int kind, KindIterable kindIterable)

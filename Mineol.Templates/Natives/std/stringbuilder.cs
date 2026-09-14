@@ -15,7 +15,11 @@ class StringBuilderNative : INative
             switch (memberName)
             {
                 case "length":
-                    return new Value(sb.Length);
+                    return Value.FromFunction(
+                        "length",
+                        [],
+                        (args, pos) => new Value(sb.Length)
+                    );
 
                 case "append":
                     return Value.FromFunction(
