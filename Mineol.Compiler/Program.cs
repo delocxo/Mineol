@@ -1,29 +1,14 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-if (args.Length < 2)
+if (args.Length < 1)
 {
-    Console.Error.WriteLine("Usage: Mineol <file.mnl> run/build");
+    Console.Error.WriteLine("Usage: Mineol <file.mnl>");
     Environment.Exit(1);
 }
 
 try
 {
-    RunType runType;
-
-    if (args[1] == "run")
-        runType = RunType.Run;
-
-    else if (args[1] == "build")
-        runType = RunType.Build;
-
-    else
-    {
-        Console.Error.WriteLine($"Unknown command '{args[1]}'. Expected 'run' or 'build'.");
-        Environment.Exit(1);
-        return;
-    }
-
     DotnetInstalled.Check();
 
     Compiler compiler = new Compiler();
@@ -39,25 +24,15 @@ try
 
     File.WriteAllText("generated.cs", result);
 
-    string rid = RuntimeInformation.RuntimeIdentifier;
+    // string rid = RuntimeInformation.RuntimeIdentifier;
 
-    string arguments = "";
+    // var startInfo = new ProcessStartInfo
+    // {
+    //     FileName = "dotnet",
+    //     Arguments = $"publish generated.cs -c Release -r {rid} --self-contained -o output"
+    // };
 
-    if (runType == RunType.Build)
-        arguments = $"publish generated.cs -c Release -r {rid} --self-contained -o output";
-    else if (runType == RunType.Run)
-    {
-        string programArgs = string.Join(" ", args.Skip(2));
-        arguments = $"run generated.cs -c Release -- {programArgs}";
-    }
-
-    var startInfo = new ProcessStartInfo
-    {
-        FileName = "dotnet",
-        Arguments = arguments
-    };
-
-    Process.Start(startInfo)!.WaitForExit();
+    // Process.Start(startInfo)!.WaitForExit();
 }
 catch (Error e)
 {

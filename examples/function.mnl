@@ -1,0 +1,13 @@
+use "std/terminal.cs";
+
+// functions are expressions
+mul_3! = func(x, y, z)
+    return x * y * z;
+end;
+
+// functions can also use arrows
+mul_6 = func(a, b, c, x, y, z) => a * b * c * x * y * z;
+
+term_println(mul_3(100, 23, 12));
+
+term_println(mul_6(2, 12, 485, 3828, -100, 22));

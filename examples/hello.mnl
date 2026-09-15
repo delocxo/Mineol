@@ -1,0 +1,4 @@
+// this contains basic io functions
+use "std/terminal.cs";
+
+term_println("Hello, World!");

@@ -1,0 +1,5 @@
+// constants are defined like this. x ! = value;
+// ! means its constant
+
+x! = 100;
+x! = 50; // error

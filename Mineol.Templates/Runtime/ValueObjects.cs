@@ -35,6 +35,11 @@ class RecordObject
     }
 
     public OrderedDictionary<string, RecordField> Fields { get; }
+
+    public static Value Create(OrderedDictionary<string, RecordField> fields)
+    {
+        return new Value(new RecordObject(fields));
+    }
 }
 
 class EnumValue
