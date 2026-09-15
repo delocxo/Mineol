@@ -153,7 +153,7 @@ static class Arithmetic
             return new Value(left.Int > right.Int);
         }
 
-        return Globals.KindOperations.GetBinary(left, right, BinaryOperation.Add, ">", position);
+        return Globals.KindOperations.GetBinary(left, right, BinaryOperation.Greater, ">", position);
     }
 
     public static Value LessEqual(Value left, Value right, Position position)
@@ -166,7 +166,7 @@ static class Arithmetic
             return new Value(left.Int <= right.Int);
         }
 
-        return Globals.KindOperations.GetBinary(left, right, BinaryOperation.Sub, "<=", position);
+        return Globals.KindOperations.GetBinary(left, right, BinaryOperation.LessEqual, "<=", position);
     }
 
     public static Value GreaterEqual(Value left, Value right, Position position)
@@ -179,7 +179,7 @@ static class Arithmetic
             return new Value(left.Int >= right.Int);
         }
 
-        return Globals.KindOperations.GetBinary(left, right, BinaryOperation.Add, ">=", position);
+        return Globals.KindOperations.GetBinary(left, right, BinaryOperation.GreaterEqual, ">=", position);
     }
 
     public static Value Equals(Value left, Value right, Position position)

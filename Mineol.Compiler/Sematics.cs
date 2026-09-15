@@ -70,7 +70,9 @@ class Sematics
             else if (stmt is ForStmt forStmt)
             {
                 CheckExpr(forStmt.Iterable);
+                _depth.LoopDepth++;
                 Check(forStmt.Body);
+                _depth.LoopDepth--;
             }
         }
     }

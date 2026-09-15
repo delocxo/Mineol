@@ -234,7 +234,6 @@ class StringNative : INative
                     throw new Error("Not enough arguments for string format", pos);
 
                 sb.Append(items[currentArg++].ToString());
-                currentArg++;
             }
 
             if (currentArg < items.Count)

@@ -87,7 +87,7 @@ class GeneralNative : INative
             throw new Error(args[0].ToString(), args[1], pos);
         });
 
-        globals.AddFunction("expect_kind", ["value", "kind"], (args, pos) =>
+        globals.AddFunction("enforce", ["value", "kind"], (args, pos) =>
         {
             string kindName = args[1].ExpectString("Expected a kind name", pos);
 
@@ -100,7 +100,7 @@ class GeneralNative : INative
             return args[0];
         });
 
-        globals.AddFunction("expect_kind_msg", ["value", "kind", "msg"], (args, pos) =>
+        globals.AddFunction("enforce_msg", ["value", "kind", "msg"], (args, pos) =>
         {
             string kindName = args[1].ExpectString("Expected a kind name", pos);
 

@@ -43,12 +43,12 @@ class EnumValue
     {
         EnumName = enumName;
         MemberName = memberName;
-        Value = value;
+        Index = value;
     }
 
     public string EnumName { get; }
     public string MemberName { get; }
-    public int Value { get; }
+    public int Index { get; }
 
     public override int GetHashCode()
     {
