@@ -111,17 +111,13 @@ class Parser
 
         List<Stmt>? elseBody = null;
 
-        while (Match(TokenType.Else))
+        while (Match(TokenType.Elif))
         {
-            if (Match(TokenType.If))
-            {
-                ifBranches.Add(new IfBranch(ParseExpr(), ParseBody()));
-                continue;
-            }
-
-            elseBody = ParseBody();
-            break;
+            ifBranches.Add(new IfBranch(ParseExpr(), ParseBody()));
         }
+
+        if (Match(TokenType.Else))
+            elseBody = ParseBody();
 
         return new IfStmt(ifBranches, elseBody, position);
     }

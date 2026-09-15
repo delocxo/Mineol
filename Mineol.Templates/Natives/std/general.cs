@@ -45,15 +45,15 @@ class GeneralNative : INative
             try
             {
                 Value result = RuntimeFunctions.Call(args[0], [], pos);
-                return MakeTryCallResult(true, result, "");
+                return MakeTryCallResult(true, result, "", false);
             }
             catch (Error e)
             {
-                return MakeTryCallResult(false, Value.Null, e.Message);
+                return MakeTryCallResult(false, e.ErrorValue, e.Message, false);
             }
             catch (Exception e)
             {
-                return MakeTryCallResult(false, Value.Null, e.Message);
+                return MakeTryCallResult(false, Value.Null, e.Message, true);
             }
         });
 
@@ -81,6 +81,37 @@ class GeneralNative : INative
 
             return new Value(result);
         });
+
+        globals.AddFunction("panic_with", ["message", "value"], (args, pos) =>
+        {
+            throw new Error(args[0].ToString(), args[1], pos);
+        });
+
+        globals.AddFunction("expect_kind", ["value", "kind"], (args, pos) =>
+        {
+            string kindName = args[1].ExpectString("Expected a kind name", pos);
+
+            if (!ValueKind.NameToId.TryGetValue(kindName, out int kind))
+                throw new Error($"'{kindName}' is not a valid kind", pos);
+
+            if (args[0].Kind != kind)
+                throw new Error($"Expected kind '{kindName}', got '{args[0].KindName}'", pos);
+
+            return args[0];
+        });
+
+        globals.AddFunction("expect_kind_msg", ["value", "kind", "msg"], (args, pos) =>
+        {
+            string kindName = args[1].ExpectString("Expected a kind name", pos);
+
+            if (!ValueKind.NameToId.TryGetValue(kindName, out int kind))
+                throw new Error($"'{kindName}' is not a valid kind", pos);
+
+            if (args[0].Kind != kind)
+                throw new Error(args[2].ToString(), pos);
+
+            return args[0];
+        });
     }
 
     static IEnumerable<Value> Range(int start, int stop, int step, Position position)
@@ -100,13 +131,14 @@ class GeneralNative : INative
         }
     }
 
-    static Value MakeTryCallResult(bool success, Value data, string errMessage)
+    static Value MakeTryCallResult(bool success, Value data, string errMessage, bool isInternalError)
     {
         RecordObject result = new RecordObject(new OrderedDictionary<string, RecordField>
         {
             ["success"] = new RecordField(new Value(success), false),
             ["data"] = new RecordField(data, false),
-            ["error"] = new RecordField(new Value(errMessage), false)
+            ["error"] = new RecordField(new Value(errMessage), false),
+            ["is_internal_error"] = new RecordField(new Value(isInternalError), false)
         });
 
         return new Value(result);

@@ -14,9 +14,9 @@ class SeqNative : INative
 
             switch (memberName)
             {
-                case "select":
+                case "s_select":
                     value = Value.FromFunction(
-                        "select",
+                        "s_select",
                         ["callback"],
                         (args, pos) =>
                         {
@@ -34,18 +34,18 @@ class SeqNative : INative
 
                     return true;
 
-                case "to_list":
+                case "s_to_list":
                     value = Value.FromFunction(
-                        "to_list",
+                        "s_to_list",
                         [],
                         (args, pos) => new Value(target.GetIterable(pos))
                     );
 
                     return true;
 
-                case "filter":
+                case "s_filter":
                     value = Value.FromFunction(
-                        "filter",
+                        "s_filter",
                         ["predicate"],
                         (args, pos) =>
                         {
@@ -67,9 +67,9 @@ class SeqNative : INative
 
                     return true;
 
-                case "for_each":
+                case "s_foreach":
                     value = Value.FromFunction(
-                        "for_each",
+                        "s_foreach",
                         ["callback"],
                         (args, pos) =>
                         {
@@ -86,9 +86,9 @@ class SeqNative : INative
 
                     return true;
 
-                case "to_hashmap":
+                case "s_to_hashmap":
                     value = Value.FromFunction(
-                        "to_hashmap",
+                        "s_to_hashmap",
                         ["key_callback", "value_callback"],
                         (args, pos) =>
                         {
@@ -120,9 +120,9 @@ class SeqNative : INative
 
                     return true;
 
-                case "take":
+                case "s_take":
                     value = Value.FromFunction(
-                        "take",
+                        "s_take",
                         ["amount"],
                         (args, pos) =>
                         {
@@ -138,9 +138,9 @@ class SeqNative : INative
 
                     return true;
 
-                case "skip":
+                case "s_skip":
                     value = Value.FromFunction(
-                        "skip",
+                        "s_skip",
                         ["amount"],
                         (args, pos) =>
                         {
@@ -167,6 +167,21 @@ class SeqNative : INative
 
     public void Register(Dictionary<string, Value> globals)
     {
+        globals.AddFunction(
+                "seq_generate",
+                ["count", "callback"],
+                (args, pos) =>
+                {
+                    int amount = (int)args[0].ExpectIntInRangeIn("Invalid generate count", 0, int.MaxValue, pos);
+                    args[1].ExpectCallback(pos);
 
+                    List<Value> result = new List<Value>(amount);
+
+                    for (int i = 0; i < amount; i++)
+                        result.Add(RuntimeFunctions.Call(args[1], [new Value(i)], pos));
+
+                    return new Value(result);
+                }
+        );
     }
 }

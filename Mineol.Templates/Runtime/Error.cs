@@ -14,10 +14,18 @@ struct Position
 
 class Error : Exception
 {
+    public Value ErrorValue { get; } = Value.Null;
+
     Position _position;
 
     public Error(string message, Position position) : base($"{position.Line}:{position.Column}:{position.Source}: {message}")
     {
+        _position = position;
+    }
+
+    public Error(string message, Value errorValue, Position position) : base($"{position.Line}:{position.Column}:{position.Source}: {message}")
+    {
+        ErrorValue = errorValue;
         _position = position;
     }
 

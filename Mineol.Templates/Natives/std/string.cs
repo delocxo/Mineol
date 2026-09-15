@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 
 class StringNative : INative
 {
@@ -197,10 +198,49 @@ class StringNative : INative
 
         globals.AddFunction("string_join", ["separator", "items"], (args, pos) =>
         {
-            if (args[1].IsList())
-                return new Value(string.Join(args[0].ToString(), args[1].List));
+            if (args[1].IsIterable())
+                return new Value(string.Join(args[0].ToString(), args[1].GetIterable(pos)));
 
             throw new Error($"{args[1].KindName} cannot be joined", pos);
+        });
+
+        globals.AddFunction("string_format", ["template", "items"], (args, pos) =>
+        {
+            string template = args[0].ExpectString("Expected a format template", pos);
+            List<Value> items = args[1].ExpectList(pos);
+
+            StringBuilder sb = new StringBuilder();
+
+            int currentArg = 0;
+
+            for (int i = 0; i < template.Length; i++)
+            {
+                char c = template[i];
+
+                if (c != '$')
+                {
+                    sb.Append(c);
+                    continue;
+                }
+
+                if (i + 1 < template.Length && template[i + 1] == '$')
+                {
+                    sb.Append('$');
+                    i++;
+                    continue;
+                }
+
+                if (currentArg >= items.Count)
+                    throw new Error("Not enough arguments for string format", pos);
+
+                sb.Append(items[currentArg++].ToString());
+                currentArg++;
+            }
+
+            if (currentArg < items.Count)
+                throw new Error("Too many arguments for string format", pos);
+
+            return new Value(sb.ToString());
         });
     }
 }

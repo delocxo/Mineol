@@ -7,6 +7,8 @@ delegate bool KindEquality(Value left, Value right);
 delegate string KindToString(Value target);
 delegate int KindHash(Value target);
 delegate List<Value> KindIterable(Value target);
+delegate bool KindBinary(Value left, Value right, BinaryOperation binaryOperation, Position position, out Value value);
+delegate bool KindUnary(Value right, UnaryOperation unaryOperation, Position position, out Value value);
 
 class KindOperations
 {
@@ -19,6 +21,9 @@ class KindOperations
     Dictionary<int, KindToString> _toStrings = new Dictionary<int, KindToString>();
     Dictionary<int, KindHash> _kindHashes = new Dictionary<int, KindHash>();
     Dictionary<int, KindIterable> _kindIterables = new Dictionary<int, KindIterable>();
+
+    Dictionary<int, KindBinary> _kindBinaries = new Dictionary<int, KindBinary>();
+    Dictionary<int, KindUnary> _kindUnaries = new Dictionary<int, KindUnary>();
 
     public List<ExtensionMemberGetter> ExtensionMemberGetters { get; } = new List<ExtensionMemberGetter>();
 
@@ -115,6 +120,28 @@ class KindOperations
         return _kindIterables.ContainsKey(kind);
     }
 
+    public Value GetBinary(Value left, Value right, BinaryOperation binaryOperation, string op, Position position)
+    {
+        if (_kindBinaries.TryGetValue(left.Kind, out KindBinary? kindBinary))
+        {
+            if (kindBinary(left, right, binaryOperation, position, out Value value))
+                return value;
+        }
+
+        throw Arithmetic.BinaryError(left, right, op, position);
+    }
+
+    public Value GetUnary(Value right, UnaryOperation unaryOperation, string op, Position position)
+    {
+        if (_kindUnaries.TryGetValue(right.Kind, out KindUnary? kindUnary))
+        {
+            if (kindUnary(right, unaryOperation, position, out Value value))
+                return value;
+        }
+
+        throw Arithmetic.UnaryError(right, op, position);
+    }
+
     public void AddMemberGetter(int kind, MemberGetter memberGetter)
     {
         _memberGetters[kind] = memberGetter;
@@ -180,5 +207,15 @@ class KindOperations
     public void AddExtensionMemberGetter(ExtensionMemberGetter memberGetter)
     {
         ExtensionMemberGetters.Add(memberGetter);
+    }
+
+    public void AddBinary(int kind, KindBinary kindBinary)
+    {
+        _kindBinaries[kind] = kindBinary;
+    }
+
+    public void AddUnary(int kind, KindUnary kindUnary)
+    {
+        _kindUnaries[kind] = kindUnary;
     }
 }

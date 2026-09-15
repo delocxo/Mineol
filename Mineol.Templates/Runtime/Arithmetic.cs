@@ -1,3 +1,22 @@
+enum BinaryOperation
+{
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Mod,
+    Less,
+    LessEqual,
+    Greater,
+    GreaterEqual,
+}
+
+enum UnaryOperation
+{
+    Negate,
+    Flip
+}
+
 static class Arithmetic
 {
     public static Value Add(Value left, Value right, Position position)
@@ -20,7 +39,7 @@ static class Arithmetic
         else if (left.IsString() || right.IsString())
             return new Value(left.ToString() + right.ToString());
 
-        throw BinaryError(left, right, "+", position);
+        return Globals.KindOperations.GetBinary(left, right, BinaryOperation.Add, "+", position);
     }
 
     public static Value Sub(Value left, Value right, Position position)
@@ -40,7 +59,7 @@ static class Arithmetic
             }
         }
 
-        throw BinaryError(left, right, "-", position);
+        return Globals.KindOperations.GetBinary(left, right, BinaryOperation.Sub, "-", position);
     }
 
     public static Value Mul(Value left, Value right, Position position)
@@ -60,7 +79,7 @@ static class Arithmetic
             }
         }
 
-        throw BinaryError(left, right, "*", position);
+        return Globals.KindOperations.GetBinary(left, right, BinaryOperation.Mul, "*", position);
     }
 
     public static Value Div(Value left, Value right, Position position)
@@ -84,7 +103,7 @@ static class Arithmetic
             }
         }
 
-        throw BinaryError(left, right, "/", position);
+        return Globals.KindOperations.GetBinary(left, right, BinaryOperation.Div, "/", position);
     }
 
     public static Value Mod(Value left, Value right, Position position)
@@ -108,7 +127,7 @@ static class Arithmetic
             }
         }
 
-        throw BinaryError(left, right, "%", position);
+        return Globals.KindOperations.GetBinary(left, right, BinaryOperation.Mod, "%", position);
     }
 
     public static Value Less(Value left, Value right, Position position)
@@ -121,7 +140,7 @@ static class Arithmetic
             return new Value(left.Int < right.Int);
         }
 
-        throw BinaryError(left, right, "<", position);
+        return Globals.KindOperations.GetBinary(left, right, BinaryOperation.Less, "<", position);
     }
 
     public static Value Greater(Value left, Value right, Position position)
@@ -134,7 +153,7 @@ static class Arithmetic
             return new Value(left.Int > right.Int);
         }
 
-        throw BinaryError(left, right, ">", position);
+        return Globals.KindOperations.GetBinary(left, right, BinaryOperation.Add, ">", position);
     }
 
     public static Value LessEqual(Value left, Value right, Position position)
@@ -147,7 +166,7 @@ static class Arithmetic
             return new Value(left.Int <= right.Int);
         }
 
-        throw BinaryError(left, right, "<=", position);
+        return Globals.KindOperations.GetBinary(left, right, BinaryOperation.Sub, "<=", position);
     }
 
     public static Value GreaterEqual(Value left, Value right, Position position)
@@ -160,7 +179,7 @@ static class Arithmetic
             return new Value(left.Int >= right.Int);
         }
 
-        throw BinaryError(left, right, ">=", position);
+        return Globals.KindOperations.GetBinary(left, right, BinaryOperation.Add, ">=", position);
     }
 
     public static Value Equals(Value left, Value right, Position position)

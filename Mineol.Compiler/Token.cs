@@ -5,7 +5,7 @@
     True, False, Null, End, If, Else,
     While, Break, Continue, Function,
     Return, Use, Record, Enum, Import,
-    For, In,
+    For, In, Elif,
 
     Add, Sub, Mul, Div, Mod,
     IsEqual, NotEqual, Less, Greater,
