@@ -19,7 +19,7 @@ class Lexer
             { "while", TokenType.While },
             { "break", TokenType.Break },
             { "continue", TokenType.Continue },
-            { "function", TokenType.Function },
+            { "func", TokenType.Function },
             { "return", TokenType.Return },
             { "use", TokenType.Use },
             { "record", TokenType.Record },
