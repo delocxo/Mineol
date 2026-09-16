@@ -251,7 +251,7 @@ struct Value
             return List == other.List;
 
         else if (IsRecord() && other.IsRecord())
-            return RecordObject == other.RecordObject;
+            return Globals.KindOperations.Equals(this, other);
 
         else if (IsEnum() && other.IsEnum())
             return EnumObject == other.EnumObject;

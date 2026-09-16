@@ -65,7 +65,7 @@ static class RuntimeFunctions
     public static Value MemberGet(Value target, string memberName, Position position)
     {
         if (target.IsRecord())
-            if (TryGetRecordMember(target, memberName, position, out Value value))
+            if (TryGetRecordMember(target, memberName, out Value value))
                 return value;
 
         if (target.IsEnum())
@@ -100,7 +100,7 @@ static class RuntimeFunctions
         Globals.KindOperations.SetMember(target, memberName, value, position);
     }
 
-    static bool TryGetRecordMember(Value target, string memberName, Position position, out Value value)
+    public static bool TryGetRecordMember(Value target, string memberName, out Value value)
     {
         RecordObject recordObject = target.RecordObject;
 

@@ -27,7 +27,7 @@ static class ValueKind
     public static int List = Register("list");
     public static int Record = Register("record");
     public static int Enum = Register("enum");
-    public static int EnumValue = Register("enumvalue");
+    public static int EnumValue = Register("enum_value");
 
     public static int Register(string name, bool @protected = true)
     {
