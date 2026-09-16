@@ -11,7 +11,7 @@ record NullExpr(Position Position) : Expr(Position);
 record NameExpr(string Name, Position Position) : Expr(Position);
 record UnaryExpr(Expr Right, TokenType Op, Position Position) : Expr(Position);
 record BinaryExpr(Expr Left, Expr Right, TokenType Op, Position Position) : Expr(Position);
-record FunctionExpr(List<Stmt> Stmts, List<string> Parameters, Position Position) : Expr(Position);
+record FunctionExpr(List<Stmt> Stmts, List<string> Parameters, bool IsExpr, Position Position) : Expr(Position);
 record CallExpr(Expr target, List<Expr> Arguments, Position Position) : Expr(Position);
 record ListExpr(List<Expr> Exprs, Position Position) : Expr(Position);
 record IndexExpr(Expr Target, Expr Index, Position Position) : Expr(Position);

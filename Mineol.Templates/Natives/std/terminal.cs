@@ -45,7 +45,9 @@ class TerminalNative : INative
 
         globals.AddFunction("term_clear", [], (args, pos) =>
         {
-            Console.Clear();
+            if (!Console.IsOutputRedirected)
+                Console.Clear();
+
             return Value.Null;
         });
     }

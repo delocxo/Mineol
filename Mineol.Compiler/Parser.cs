@@ -16,10 +16,18 @@ class Parser
         List<Stmt> stmts = new List<Stmt>();
 
         while (Check(TokenType.Use))
-            stmts.Add(ParseUse());
+        {
+            var uses = ParseUse();
+            foreach (UseStmt useStmt in uses)
+                stmts.Add(useStmt);
+        }
 
         while (Check(TokenType.Import))
-            stmts.Add(ParseImport());
+        {
+            var imports = ParseImport();
+            foreach (ImportStmt importStmt in imports)
+                stmts.Add(importStmt);
+        }
 
         while (NotAtEnd())
         {
@@ -71,6 +79,29 @@ class Parser
         {
             Expect(TokenType.Semicolon);
             return new CallStmt(callExpr);
+        }
+
+        if (assignee is NameExpr nameExpr2)
+        {
+            if (Check(TokenType.Function))
+            {
+                FunctionExpr functionExpr = ParseFunction();
+
+                if (functionExpr.IsExpr)
+                    Expect(TokenType.Semicolon);
+
+                VarStmt varStmt = new VarStmt(true, functionExpr, nameExpr2.Name, position);
+
+                return varStmt;
+            }
+            else if (Check(TokenType.Enum))
+            {
+                EnumExpr enumExpr = ParseEnum(nameExpr2.Name);
+
+                VarStmt varStmt = new VarStmt(true, enumExpr, nameExpr2.Name, position);
+
+                return varStmt;
+            }
         }
 
         bool isConst = Match(TokenType.Bang);
@@ -171,34 +202,86 @@ class Parser
         return new ReturnStmt(expr, position);
     }
 
-    UseStmt ParseUse()
+    List<UseStmt> ParseUse()
     {
+        UseStmt ParseUse(Position position)
+        {
+            string path = Current().Lexeme;
+
+            Eat("Expected a string path", TokenType.String);
+
+            return new UseStmt(path, position);
+        }
+
         Position position = Current().Position;
 
         Next();
 
-        string path = Current().Lexeme;
+        List<UseStmt> useStmts = new List<UseStmt>();
 
-        Eat("Expected a string path", TokenType.String);
+        if (Match(TokenType.LeftParen))
+        {
+            useStmts.Add(ParseUse(position));
 
-        Expect(TokenType.Semicolon);
+            while (Match(TokenType.Comma))
+                useStmts.Add(ParseUse(position));
 
-        return new UseStmt(path, position);
+            Expect(TokenType.RightParen);
+
+            Expect(TokenType.Semicolon);
+
+            return useStmts;
+        }
+
+        else
+        {
+            useStmts.Add(ParseUse(position));
+
+            Expect(TokenType.Semicolon);
+
+            return useStmts;
+        }
     }
 
-    ImportStmt ParseImport()
+    List<ImportStmt> ParseImport()
     {
+        ImportStmt ParseImport(Position position)
+        {
+            string path = Current().Lexeme;
+
+            Eat("Expected a string path", TokenType.String);
+
+            return new ImportStmt(path, position);
+        }
+
         Position position = Current().Position;
 
         Next();
 
-        string path = Current().Lexeme;
+        List<ImportStmt> importStmts = new List<ImportStmt>();
 
-        Eat("Expected a string path", TokenType.String);
+        if (Match(TokenType.LeftParen))
+        {
+            importStmts.Add(ParseImport(position));
 
-        Expect(TokenType.Semicolon);
+            while (Match(TokenType.Comma))
+                importStmts.Add(ParseImport(position));
 
-        return new ImportStmt(path, position);
+            Expect(TokenType.RightParen);
+
+            Expect(TokenType.Semicolon);
+
+            return importStmts;
+        }
+
+        else
+        {
+            importStmts.Add(ParseImport(position));
+
+            Expect(TokenType.Semicolon);
+
+            return importStmts;
+        }
     }
 
     ForStmt ParseFor()
@@ -356,6 +439,8 @@ class Parser
 
         List<Stmt> body = new List<Stmt>();
 
+        bool isExpr = false;
+
         if (Match(TokenType.Arrow))
         {
             Expr expr = ParseExpr();
@@ -363,11 +448,13 @@ class Parser
             ReturnStmt returnStmt = new ReturnStmt(expr, expr.Position);
 
             body.Add(returnStmt);
+
+            isExpr = true;
         }
         else
             body = ParseBody();
 
-        return new FunctionExpr(body, parameters, position);
+        return new FunctionExpr(body, parameters, isExpr, position);
     }
 
     RecordExpr ParseRecord()

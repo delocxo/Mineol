@@ -93,7 +93,7 @@ class MutexNative : INative
     {
         int mutexKind = ValueKind.GetId("std_mutex");
 
-        globals.AddFunction("mutex_new", ["mutex_new"], (args, pos) =>
+        globals.AddFunction("mutex_new", [], (args, pos) =>
         {
             return new Value(new Mutex(1, 1), mutexKind);
         });

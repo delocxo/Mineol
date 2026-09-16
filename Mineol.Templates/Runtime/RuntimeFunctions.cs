@@ -65,7 +65,8 @@ static class RuntimeFunctions
     public static Value MemberGet(Value target, string memberName, Position position)
     {
         if (target.IsRecord())
-            return GetRecordMember(target, memberName, position);
+            if (TryGetRecordMember(target, memberName, position, out Value value))
+                return value;
 
         if (target.IsEnum())
         {
@@ -73,8 +74,6 @@ static class RuntimeFunctions
 
             if (enumObject.Members.TryGetValue(memberName, out EnumValue? enumValue))
                 return new Value(enumValue);
-
-            throw new Error($"Enum '{memberName}' does not contain '{memberName}", position);
         }
 
         return Globals.KindOperations.GetMember(target, memberName, position);
@@ -101,17 +100,17 @@ static class RuntimeFunctions
         Globals.KindOperations.SetMember(target, memberName, value, position);
     }
 
-    static Value GetRecordMember(Value target, string memberName, Position position)
+    static bool TryGetRecordMember(Value target, string memberName, Position position, out Value value)
     {
         RecordObject recordObject = target.RecordObject;
 
         if (recordObject.Fields.TryGetValue(memberName, out RecordField? field))
         {
-            Value value = field.Value;
+            Value fieldValue = field.Value;
 
-            if (value.IsFunction())
+            if (fieldValue.IsFunction())
             {
-                FunctionObject function = value.FunctionObject;
+                FunctionObject function = fieldValue.FunctionObject;
 
                 if (function.Arity > 0 && function.Parameters[0] == "self")
                 {
@@ -119,7 +118,7 @@ static class RuntimeFunctions
                         .Skip(1)
                         .ToList();
 
-                    return new Value(
+                    value = new Value(
                         new FunctionObject(
                             memberName,
                             parameters,
@@ -130,13 +129,17 @@ static class RuntimeFunctions
                             }
                         )
                     );
+
+                    return true;
                 }
             }
 
-            return value;
+            value = fieldValue;
+            return true;
         }
 
-        throw new Error($"Anonymous record does not contain field '{memberName}'", position);
+        value = default;
+        return false;
     }
 
     public static Value MakeResultRecord(Value value, bool success)
