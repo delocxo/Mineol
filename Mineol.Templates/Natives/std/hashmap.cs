@@ -225,7 +225,7 @@ class HashMapNative : INative
             return hashMapObject == right.As<HashMapObject>();
         });
 
-        kindOperations.AddHash(hashMapKind, (target) =>
+        kindOperations.AddHash(hashMapKind, (target, pos) =>
         {
             return target.As<HashMapObject>().GetHashCode();
         });

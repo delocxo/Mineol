@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 delegate Value MemberGetter(Value target, string name, Position position);
 delegate bool ExtensionMemberGetter(Value target, string name, Position position, out Value value);
 delegate void MemberSetter(Value target, string name, Value value, Position position);
@@ -5,7 +7,7 @@ delegate Value IndexGetter(Value target, Value index, Position position);
 delegate void IndexSetter(Value target, Value index, Value value, Position position);
 delegate bool KindEquality(Value left, Value right, Position position);
 delegate string KindToString(Value target, Position position);
-delegate int KindHash(Value target);
+delegate int KindHash(Value target, Position position);
 delegate List<Value> KindIterable(Value target);
 delegate bool KindBinary(Value left, Value right, BinaryOperation binaryOperation, Position position, out Value value);
 delegate bool KindUnary(Value right, UnaryOperation unaryOperation, Position position, out Value value);
@@ -90,16 +92,16 @@ class KindOperations
     public int GetHash(Value target, Position position)
     {
         if (_kindHashes.TryGetValue(target.Kind, out var hash))
-            return hash(target);
+            return hash(target, position);
 
         throw new Error($"{target.KindName} is not hashable", position);
     }
 
-    public bool TryGetHash(Value target, out int hashCode)
+    public bool TryGetHash(Value target, Position position, out int hashCode)
     {
         if (_kindHashes.TryGetValue(target.Kind, out var hash))
         {
-            hashCode = hash(target);
+            hashCode = hash(target, position);
             return true;
         }
 
@@ -140,6 +142,18 @@ class KindOperations
         }
 
         throw Arithmetic.UnaryError(right, op, position);
+    }
+
+    public bool TryGetUnary(Value right, UnaryOperation unaryOperation, string op, Position position, out Value value)
+    {
+        if (_kindUnaries.TryGetValue(right.Kind, out KindUnary? kindUnary))
+        {
+            if (kindUnary(right, unaryOperation, position, out value))
+                return true;
+        }
+
+        value = Value.Null;
+        return false;
     }
 
     public void AddMemberGetter(int kind, MemberGetter memberGetter)
@@ -193,9 +207,12 @@ class KindOperations
 
     public void AddDefaultHash(int kind)
     {
-        _kindHashes[kind] = (target) =>
+        _kindHashes[kind] = (target, pos) =>
         {
-            return target.Object!.GetHashCode();
+            if (target.Object != null)
+                return target.Object.GetHashCode();
+
+            throw new Error($"Unexpected failure to hash kind '{target.KindName}'", pos);
         };
     }
 

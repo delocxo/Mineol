@@ -7,6 +7,8 @@ static class RecordOperations
         kindOperations.AddToString(ValueKind.Record, ToString);
         kindOperations.AddIndexGetter(ValueKind.Record, IndexGet);
         kindOperations.AddIndexSetter(ValueKind.Record, IndexSet);
+        kindOperations.AddHash(ValueKind.Record, Hash);
+        kindOperations.AddUnary(ValueKind.Record, Unary);
     }
 
     static bool Binary(Value left, Value right, BinaryOperation binaryOperation, Position position, out Value result)
@@ -83,5 +85,37 @@ static class RecordOperations
             throw new Error("Record could not be index set", position);
 
         RuntimeFunctions.Call(method, [index, value], position);
+    }
+
+    static int Hash(Value target, Position position)
+    {
+        if (!RuntimeFunctions.TryGetRecordMember(target, "_hash_", out Value method))
+            throw new Error("Record could not be hashed", position);
+
+        Value result = RuntimeFunctions.Call(method, [], position);
+
+        return (int)result.ExpectIntInRangeIn("Expected a 32 bit hash", int.MinValue, int.MaxValue, position);
+    }
+
+    static bool Unary(Value right, UnaryOperation unaryOperation, Position position, out Value result)
+    {
+        string memberName = unaryOperation switch
+        {
+            UnaryOperation.Flip => "_flip_",
+            UnaryOperation.Negate => "_negate_",
+            _ => ""
+        };
+
+        if (memberName == "" || !RuntimeFunctions.TryGetRecordMember(right, memberName, out Value method))
+        {
+            result = default;
+            return false;
+        }
+
+        if (!method.IsFunction())
+            throw new Error($"Record member '{memberName}' must be a function", position);
+
+        result = RuntimeFunctions.Call(method, [], position);
+        return true;
     }
 }

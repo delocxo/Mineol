@@ -83,7 +83,7 @@ class StringBuilderNative : INative
             return sb == right.As<StringBuilder>();
         });
 
-        kindOperations.AddHash(sbKind, (target) =>
+        kindOperations.AddHash(sbKind, (target, pos) =>
         {
             return target
                 .As<StringBuilder>()

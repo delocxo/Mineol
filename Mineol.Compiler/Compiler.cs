@@ -348,7 +348,8 @@ class Compiler
                     else
                         return $"""
                         Arithmetic.Flip(
-                        {right})
+                        {right},
+                            {PosToRuntimePos(unaryExpr.Position)})
                         """;
                 }
 

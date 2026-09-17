@@ -283,21 +283,21 @@ struct Value
 
     public int GetHash(Position position)
     {
-        if (TryGetHash(out int hash))
+        if (TryGetHash(position, out int hash))
             return hash;
 
         throw new Error($"{KindName} is not hashable", position);
     }
 
-    public override int GetHashCode()
+    public int GetHashCode(Position position)
     {
-        if (TryGetHash(out int hash))
+        if (TryGetHash(position, out int hash))
             return hash;
 
         throw new InvalidOperationException($"{KindName} is not hashable");
     }
 
-    public bool TryGetHash(out int hash)
+    public bool TryGetHash(Position position, out int hash)
     {
         if (IsNumber())
             hash = AsFloat().GetHashCode();
@@ -318,12 +318,12 @@ struct Value
             hash = List.GetHashCode();
 
         else if (IsRecord())
-            hash = RecordObject.GetHashCode();
+            hash = Globals.KindOperations.GetHash(this, position);
 
         else if (IsEnumValue())
             hash = EnumValue.GetHashCode();
         else
-            return Globals.KindOperations.TryGetHash(this, out hash);
+            return Globals.KindOperations.TryGetHash(this, position, out hash);
 
         return true;
     }

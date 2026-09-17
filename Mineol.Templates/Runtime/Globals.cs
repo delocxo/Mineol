@@ -6,7 +6,7 @@ static class Globals
 {
     public static Dictionary<string, Value> Values { get; } = new Dictionary<string, Value>();
     public static KindOperations KindOperations { get; } = new KindOperations();
-    public static Position ProtocalPosition = new Position(0, 0, "<record protocol>");
+    public static Position ProtocalPosition = new Position(0, 0, "<protocol>");
 
     public static Value GetGlobal(string name, Position position)
     {

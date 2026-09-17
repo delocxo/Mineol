@@ -197,14 +197,21 @@ static class Arithmetic
         if (right.IsInt())
             return new Value(-right.Int);
 
-        if (right.IsFloat())
+        else if (right.IsFloat())
             return new Value(-right.Float);
+
+        else if (right.IsRecord())
+            return Globals.KindOperations.GetUnary(right, UnaryOperation.Negate, "-", position);
 
         throw UnaryError(right, "-", position);
     }
 
-    public static Value Flip(Value right)
+    public static Value Flip(Value right, Position position)
     {
+        if (right.IsRecord())
+            if (Globals.KindOperations.TryGetUnary(right, UnaryOperation.Flip, "!", position, out Value value))
+                return value;
+
         return new Value(!right.IsTruthy());
     }
 

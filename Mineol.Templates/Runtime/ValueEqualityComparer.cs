@@ -7,6 +7,6 @@ class ValueEqualityComparer : IEqualityComparer<Value>
 
     public int GetHashCode(Value value)
     {
-        return value.GetHashCode();
+        return value.GetHashCode(Globals.ProtocalPosition);
     }
 }
