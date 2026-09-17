@@ -337,18 +337,23 @@ class Compiler
             case UnaryExpr unaryExpr:
                 {
                     string rightExpr = CompileExpr(unaryExpr.Right);
-                    string right = Indent(rightExpr);
+                    string right = rightExpr;
 
                     if (unaryExpr.Op == TokenType.Sub)
                         return $"""
                         Arithmetic.Negate(
-                        {right}, 
+                        {Indent(right)}, 
+                            {PosToRuntimePos(unaryExpr.Position)})
+                        """;
+                    else if (unaryExpr.Op == TokenType.Bang)
+                        return $"""
+                        Arithmetic.Flip(
+                        {Indent(right)},
                             {PosToRuntimePos(unaryExpr.Position)})
                         """;
                     else
                         return $"""
-                        Arithmetic.Flip(
-                        {right},
+                        {right}.Copy(
                             {PosToRuntimePos(unaryExpr.Position)})
                         """;
                 }

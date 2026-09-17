@@ -11,6 +11,7 @@ delegate int KindHash(Value target, Position position);
 delegate List<Value> KindIterable(Value target);
 delegate bool KindBinary(Value left, Value right, BinaryOperation binaryOperation, Position position, out Value value);
 delegate bool KindUnary(Value right, UnaryOperation unaryOperation, Position position, out Value value);
+delegate Value KindCopy(Value target, Position position);
 
 class KindOperations
 {
@@ -26,6 +27,8 @@ class KindOperations
 
     Dictionary<int, KindBinary> _kindBinaries = new Dictionary<int, KindBinary>();
     Dictionary<int, KindUnary> _kindUnaries = new Dictionary<int, KindUnary>();
+
+    Dictionary<int, KindCopy> _kindCopies = new Dictionary<int, KindCopy>();
 
     public List<ExtensionMemberGetter> ExtensionMemberGetters { get; } = new List<ExtensionMemberGetter>();
 
@@ -156,6 +159,14 @@ class KindOperations
         return false;
     }
 
+    public Value GetCopy(Value target, Position position)
+    {
+        if (_kindCopies.TryGetValue(target.Kind, out var copy))
+            return copy(target, position);
+
+        throw new Error($"{target.KindName} is not copyable", position);
+    }
+
     public void AddMemberGetter(int kind, MemberGetter memberGetter)
     {
         _memberGetters[kind] = memberGetter;
@@ -234,5 +245,10 @@ class KindOperations
     public void AddUnary(int kind, KindUnary kindUnary)
     {
         _kindUnaries[kind] = kindUnary;
+    }
+
+    public void AddCopy(int kind, KindCopy kindCopy)
+    {
+        _kindCopies[kind] = kindCopy;
     }
 }

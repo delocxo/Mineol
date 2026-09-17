@@ -9,6 +9,9 @@ static class RecordOperations
         kindOperations.AddIndexSetter(ValueKind.Record, IndexSet);
         kindOperations.AddHash(ValueKind.Record, Hash);
         kindOperations.AddUnary(ValueKind.Record, Unary);
+        kindOperations.AddMemberGetter(ValueKind.Record, MemberGet);
+        // kindOperations.AddMemberSetter(ValueKind.Record, MemberSet);
+        kindOperations.AddCopy(ValueKind.Record, Copy);
     }
 
     static bool Binary(Value left, Value right, BinaryOperation binaryOperation, Position position, out Value result)
@@ -117,5 +120,33 @@ static class RecordOperations
 
         result = RuntimeFunctions.Call(method, [], position);
         return true;
+    }
+
+    static Value MemberGet(Value target, string memberName, Position position)
+    {
+        if (!RuntimeFunctions.TryGetRecordMember(target, "_member_get_", out Value method))
+            throw new Error("Record could not be member get", position);
+
+        Value result = RuntimeFunctions.Call(method, [new Value(memberName)], position);
+
+        return result;
+    }
+
+    // static void MemberSet(Value target, string memberName, Value value, Position position)
+    // {
+    //     if (!RuntimeFunctions.TryGetRecordMember(target, "_member_set_", out Value method))
+    //         throw new Error("Record could not be member set", position);
+
+    //     Value result = RuntimeFunctions.Call(method, [new Value(memberName), value], position);
+    // }
+
+    static Value Copy(Value target, Position position)
+    {
+        if (!RuntimeFunctions.TryGetRecordMember(target, "_copy_", out Value method))
+            throw new Error("Record could not be copied", position);
+
+        Value result = RuntimeFunctions.Call(method, [], position);
+
+        return result;
     }
 }

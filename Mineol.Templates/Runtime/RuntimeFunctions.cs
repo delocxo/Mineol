@@ -85,16 +85,17 @@ static class RuntimeFunctions
         {
             RecordObject recordObject = target.RecordObject;
 
-            if (recordObject.Fields.TryGetValue(memberName, out RecordField? field))
-            {
-                if (field.isConst)
-                    throw new Error($"Anonymous record field '{memberName}' is constant and cant be changed", position);
+            if (!recordObject.Fields.TryGetValue(memberName, out RecordField? field))
+                throw new Error($"Anonymous record does not contain field '{memberName}'", position);
 
-                field.Value = value;
-                return;
-            }
+            if (field.isConst)
+                throw new Error($"Record field '{memberName}' is constant and cant be changed", position);
 
-            throw new Error($"Anonymous record does not contain field '{memberName}'", position);
+            if (TryGetRecordMember(target, "_member_set_", out Value setter))
+                Call(setter, [new Value(memberName), value], position);
+
+            field.Value = value;
+            return;
         }
 
         Globals.KindOperations.SetMember(target, memberName, value, position);

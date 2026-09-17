@@ -63,7 +63,8 @@ class Lexer
             // { "&", TokenType.BitwiseAnd },
             // { "^", TokenType.BitwiseXor },
             // { "|", TokenType.BitwiseOr },
-            { "=>", TokenType.Arrow }
+            { "=>", TokenType.Arrow },
+            { "@", TokenType.At }
         };
 
     public static string? GetKeywordFromType(TokenType type)

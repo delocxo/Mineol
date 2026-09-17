@@ -328,6 +328,17 @@ struct Value
         return true;
     }
 
+    public Value Copy(Position position)
+    {
+        if (IsNumber() || IsString() || IsBool() || IsNull())
+            return this;
+
+        else if (IsList())
+            return new Value([.. List]);
+
+        return Globals.KindOperations.GetCopy(this, position);
+    }
+
     public List<Value> GetIterable(Position position)
     {
         if (IsString())
