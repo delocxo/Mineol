@@ -3,8 +3,8 @@ delegate bool ExtensionMemberGetter(Value target, string name, Position position
 delegate void MemberSetter(Value target, string name, Value value, Position position);
 delegate Value IndexGetter(Value target, Value index, Position position);
 delegate void IndexSetter(Value target, Value index, Value value, Position position);
-delegate bool KindEquality(Value left, Value right);
-delegate string KindToString(Value target);
+delegate bool KindEquality(Value left, Value right, Position position);
+delegate string KindToString(Value target, Position position);
 delegate int KindHash(Value target);
 delegate List<Value> KindIterable(Value target);
 delegate bool KindBinary(Value left, Value right, BinaryOperation binaryOperation, Position position, out Value value);
@@ -71,18 +71,18 @@ class KindOperations
         throw new Error($"{target.KindName} does not support index assignment", position);
     }
 
-    public bool Equals(Value left, Value right)
+    public bool Equals(Value left, Value right, Position position)
     {
         if (_equalities.TryGetValue(left.Kind, out var equality))
-            return equality(left, right);
+            return equality(left, right, position);
 
         return false;
     }
 
-    public string ToString(Value target)
+    public string ToString(Value target, Position position)
     {
         if (_toStrings.TryGetValue(target.Kind, out var toString))
-            return toString(target);
+            return toString(target, position);
 
         return target.KindName;
     }
@@ -169,7 +169,7 @@ class KindOperations
 
     public void AddDefaultEquality<T>(int kind)
     {
-        _equalities[kind] = (left, right) =>
+        _equalities[kind] = (left, right, position) =>
         {
             if (!right.KindIs(kind))
                 return false;

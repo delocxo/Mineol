@@ -59,7 +59,7 @@ class GeneralNative : INative
 
         globals.AddFunction("panic", ["message"], (args, pos) =>
         {
-            throw new Error(args[0].ToString(), pos);
+            throw new Error(args[0].ToString(pos), pos);
         });
 
         globals.AddFunction("enumerate", ["iterable"], (args, pos) =>
@@ -84,7 +84,7 @@ class GeneralNative : INative
 
         globals.AddFunction("panic_with", ["message", "value"], (args, pos) =>
         {
-            throw new Error(args[0].ToString(), args[1], pos);
+            throw new Error(args[0].ToString(pos), args[1], pos);
         });
 
         globals.AddFunction("enforce", ["value", "kind"], (args, pos) =>
@@ -108,7 +108,7 @@ class GeneralNative : INative
                 throw new Error($"'{kindName}' is not a valid kind", pos);
 
             if (args[0].Kind != kind)
-                throw new Error(args[2].ToString(), pos);
+                throw new Error(args[2].ToString(pos), pos);
 
             return args[0];
         });

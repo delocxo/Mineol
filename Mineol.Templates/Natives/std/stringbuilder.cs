@@ -27,7 +27,7 @@ class StringBuilderNative : INative
                         ["value"],
                         (args, pos) =>
                         {
-                            sb.Append(args[0].ToString());
+                            sb.Append(args[0].ToString(pos));
                             return target;
                         }
                     );
@@ -38,7 +38,7 @@ class StringBuilderNative : INative
                         ["value"],
                         (args, pos) =>
                         {
-                            sb.AppendLine(args[0].ToString());
+                            sb.AppendLine(args[0].ToString(pos));
                             return target;
                         }
                     );
@@ -68,12 +68,12 @@ class StringBuilderNative : INative
             throw new Error($"{target.KindName} does not contain '{memberName}'", pos);
         });
 
-        kindOperations.AddToString(sbKind, (target) =>
+        kindOperations.AddToString(sbKind, (target, pos) =>
         {
             return target.As<StringBuilder>().ToString();
         });
 
-        kindOperations.AddEquality(sbKind, (left, right) =>
+        kindOperations.AddEquality(sbKind, (left, right, pos) =>
         {
             if (!right.KindIs(sbKind))
                 return false;
@@ -102,7 +102,7 @@ class StringBuilderNative : INative
 
         globals.AddFunction("sb_from", ["from"], (args, pos) =>
         {
-            return new Value(new StringBuilder(args[0].ToString()), sbKind);
+            return new Value(new StringBuilder(args[0].ToString(pos)), sbKind);
         });
     }
 }

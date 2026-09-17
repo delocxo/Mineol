@@ -10,25 +10,25 @@ class TerminalNative : INative
     {
         globals.AddFunction("term_print", ["value"], (args, pos) =>
         {
-            Console.Write(args[0]);
+            Console.Write(args[0].ToString(pos));
             return Value.Null;
         });
 
         globals.AddFunction("term_println", ["value"], (args, pos) =>
         {
-            Console.WriteLine(args[0]);
+            Console.WriteLine(args[0].ToString(pos));
             return Value.Null;
         });
 
         globals.AddFunction("term_err_print", ["value"], (args, pos) =>
         {
-            Console.Error.Write(args[0]);
+            Console.Error.Write(args[0].ToString(pos));
             return Value.Null;
         });
 
         globals.AddFunction("term_err_println", ["value"], (args, pos) =>
         {
-            Console.Error.WriteLine(args[0]);
+            Console.Error.WriteLine(args[0].ToString(pos));
             return Value.Null;
         });
 
@@ -39,7 +39,7 @@ class TerminalNative : INative
 
         globals.AddFunction("term_prompt", ["prompt"], (args, pos) =>
         {
-            Console.Write(args[0]);
+            Console.Write(args[0].ToString(pos));
             return new Value(Console.ReadLine() ?? "");
         });
 

@@ -82,7 +82,7 @@ class MutexNative : INative
             throw new Error($"{target.KindName} does not contain '{memberName}'", pos);
         });
 
-        kindOperations.AddToString(mutexKind, (target) => "<mutex>");
+        kindOperations.AddToString(mutexKind, (target, pos) => "<mutex>");
 
         kindOperations.AddDefaultEquality<Mutex>(mutexKind);
 

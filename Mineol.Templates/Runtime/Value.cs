@@ -171,7 +171,7 @@ struct Value
 
     public T As<T>() => (T)Object!;
 
-    public override string ToString()
+    public string ToString(Position position)
     {
         if (KindIs(ValueKind.Int))
             return Int.ToString(CultureInfo.InvariantCulture);
@@ -196,17 +196,10 @@ struct Value
                 return $"<function({string.Join(", ", FunctionObject.Parameters)})>";
         }
         else if (IsList())
-            return $"[{string.Join(", ", List.Select(x => x.ToStringWithQuotes()))}]";
+            return $"[{string.Join(", ", List.Select(x => x.ToStringWithQuotes(position)))}]";
 
         else if (IsRecord())
-        {
-            string[] contents = RecordObject.Fields
-                .Select(x =>
-                    $"{x.Key}{(x.Value.isConst ? "!" : "")} = {x.Value.Value.ToStringWithQuotes()}")
-                .ToArray();
-
-            return $"{{ {string.Join(", ", contents)} }}";
-        }
+            return Globals.KindOperations.ToString(this, position);
 
         else if (IsEnum())
             return $"<enum {EnumObject.Name}>";
@@ -214,18 +207,18 @@ struct Value
         else if (IsEnumValue())
             return $"{EnumValue.EnumName}.{EnumValue.MemberName}";
 
-        return Globals.KindOperations.ToString(this);
+        return Globals.KindOperations.ToString(this, position);
     }
 
-    public string ToStringWithQuotes()
+    public string ToStringWithQuotes(Position position)
     {
         if (IsString())
             return $"'{String}'";
 
-        return ToString();
+        return ToString(position);
     }
 
-    public bool CheckEquality(Value other)
+    public bool CheckEquality(Value other, Position position)
     {
         if (IsNumber() && other.IsNumber())
         {
@@ -251,7 +244,7 @@ struct Value
             return List == other.List;
 
         else if (IsRecord() && other.IsRecord())
-            return Globals.KindOperations.Equals(this, other);
+            return Globals.KindOperations.Equals(this, other, position);
 
         else if (IsEnum() && other.IsEnum())
             return EnumObject == other.EnumObject;
@@ -260,7 +253,7 @@ struct Value
             return EnumValue.EnumName == other.EnumValue.EnumName
                 && EnumValue.MemberName == other.EnumValue.MemberName;
 
-        return Globals.KindOperations.Equals(this, other);
+        return Globals.KindOperations.Equals(this, other, position);
     }
 
     public bool IsTruthy()

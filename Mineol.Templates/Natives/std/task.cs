@@ -83,7 +83,7 @@ class TaskNative : INative
             throw new Error($"{target.KindName} does not contain '{memberName}'", pos);
         });
 
-        kindOperations.AddToString(taskKind, (target) => "<task>");
+        kindOperations.AddToString(taskKind, (target, pos) => "<task>");
 
         kindOperations.AddDefaultEquality<TaskValue>(taskKind);
 

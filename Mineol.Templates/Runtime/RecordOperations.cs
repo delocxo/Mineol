@@ -4,21 +4,24 @@ static class RecordOperations
     {
         kindOperations.AddBinary(ValueKind.Record, Binary);
         kindOperations.AddEquality(ValueKind.Record, Equality);
+        kindOperations.AddToString(ValueKind.Record, ToString);
+        kindOperations.AddIndexGetter(ValueKind.Record, IndexGet);
+        kindOperations.AddIndexSetter(ValueKind.Record, IndexSet);
     }
 
     static bool Binary(Value left, Value right, BinaryOperation binaryOperation, Position position, out Value result)
     {
         string memberName = binaryOperation switch
         {
-            BinaryOperation.Add => "add",
-            BinaryOperation.Sub => "sub",
-            BinaryOperation.Mul => "mul",
-            BinaryOperation.Div => "div",
-            BinaryOperation.Mod => "mod",
-            BinaryOperation.Less => "less",
-            BinaryOperation.LessEqual => "less_equal",
-            BinaryOperation.Greater => "greater",
-            BinaryOperation.GreaterEqual => "greater_equal",
+            BinaryOperation.Add => "_add_",
+            BinaryOperation.Sub => "_sub_",
+            BinaryOperation.Mul => "_mul_",
+            BinaryOperation.Div => "_div_",
+            BinaryOperation.Mod => "_mod_",
+            BinaryOperation.Less => "_less_",
+            BinaryOperation.LessEqual => "_less_equal_",
+            BinaryOperation.Greater => "_greater_",
+            BinaryOperation.GreaterEqual => "_greater_equal_",
             _ => ""
         };
 
@@ -35,15 +38,50 @@ static class RecordOperations
         return true;
     }
 
-    static bool Equality(Value left, Value right)
+    static bool Equality(Value left, Value right, Position position)
     {
         bool fallback = left.RecordObject == right.RecordObject;
 
-        if (!RuntimeFunctions.TryGetRecordMember(left, "equals", out Value method))
+        if (!RuntimeFunctions.TryGetRecordMember(left, "_equals_", out Value method))
             return fallback;
 
-        Value result = RuntimeFunctions.Call(method, [right], Globals.ProtocalPosition);
+        Value result = RuntimeFunctions.Call(method, [right], position);
 
         return result.IsTruthy();
+    }
+
+    static string ToString(Value target, Position position)
+    {
+        if (!RuntimeFunctions.TryGetRecordMember(target, "_to_string_", out Value method))
+        {
+            string[] contents = target.RecordObject.Fields
+                .Select(x =>
+                    $"{x.Key}{(x.Value.isConst ? "!" : "")} = {x.Value.Value.ToStringWithQuotes(position)}")
+                .ToArray();
+
+            return $"{{ {string.Join(", ", contents)} }}";
+        }
+
+        Value result = RuntimeFunctions.Call(method, [], position);
+
+        return result.ToString(position);
+    }
+
+    static Value IndexGet(Value target, Value index, Position position)
+    {
+        if (!RuntimeFunctions.TryGetRecordMember(target, "_index_get_", out Value method))
+            throw new Error("Record could not be index read", position);
+
+        Value result = RuntimeFunctions.Call(method, [index], position);
+
+        return result;
+    }
+
+    static void IndexSet(Value target, Value index, Value value, Position position)
+    {
+        if (!RuntimeFunctions.TryGetRecordMember(target, "_index_set_", out Value method))
+            throw new Error("Record could not be index set", position);
+
+        RuntimeFunctions.Call(method, [index, value], position);
     }
 }

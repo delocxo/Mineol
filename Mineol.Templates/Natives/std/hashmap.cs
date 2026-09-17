@@ -42,6 +42,7 @@ class HashMapNative : INative
                         ["key"],
                         (args, pos) =>
                         {
+                            args[0].GetHash(pos);
                             return new Value(hashmap.ContainsKey(args[0]));
                         }
                     );
@@ -96,6 +97,8 @@ class HashMapNative : INative
                             ["key"],
                             (args, pos) =>
                             {
+                                args[0].GetHash(pos);
+
                                 if (hashmap.TryGetValue(args[0], out Value value))
                                     return RuntimeFunctions.MakeResultRecord(value, true);
 
@@ -161,6 +164,7 @@ class HashMapNative : INative
                             ["key"],
                             (args, pos) =>
                             {
+                                args[0].GetHash(pos);
                                 return new Value(hashmap.Remove(args[0]));
                             }
                         );
@@ -199,7 +203,7 @@ class HashMapNative : INative
             if (hashMapObject.Values.TryGetValue(index, out Value value))
                 return value;
 
-            throw new Error($"'{index}' is not a valid key", pos);
+            throw new Error($"'{index.ToString(pos)}' is not a valid key", pos);
         });
 
         kindOperations.AddIndexSetter(hashMapKind, (target, index, value, pos) =>
@@ -211,7 +215,7 @@ class HashMapNative : INative
             hashMapObject.Values[index] = value;
         });
 
-        kindOperations.AddEquality(hashMapKind, (left, right) =>
+        kindOperations.AddEquality(hashMapKind, (left, right, pos) =>
         {
             if (!right.KindIs(hashMapKind))
                 return false;
@@ -226,13 +230,13 @@ class HashMapNative : INative
             return target.As<HashMapObject>().GetHashCode();
         });
 
-        kindOperations.AddToString(hashMapKind, (target) =>
+        kindOperations.AddToString(hashMapKind, (target, pos) =>
         {
             HashMapObject hashMapObject = target.As<HashMapObject>();
 
             string[] keyValuePairs = hashMapObject.Values
                 .Select(x =>
-                     $"{x.Key.ToStringWithQuotes()}: {x.Value.ToStringWithQuotes()}"
+                     $"{x.Key.ToStringWithQuotes(pos)}: {x.Value.ToStringWithQuotes(pos)}"
                 )
                 .ToArray();
 

@@ -12,7 +12,7 @@ class CastNative : INative
     {
         globals.AddFunction("cast_to_string", ["value"], (args, pos) =>
         {
-            return new Value(args[0].ToString());
+            return new Value(args[0].ToString(pos));
         });
 
         globals.AddFunction("cast_to_int", ["value"], (args, pos) =>

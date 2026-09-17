@@ -60,7 +60,7 @@ class ListNative : INative
                         (args, pos) =>
                         {
                             for (int i = 0; i < list.Count; i++)
-                                if (args[0].CheckEquality(list[i]))
+                                if (args[0].CheckEquality(list[i], pos))
                                     return Value.False;
                             list.Add(args[0]);
                             return Value.True;
@@ -74,7 +74,7 @@ class ListNative : INative
                         (args, pos) =>
                         {
                             for (int i = 0; i < list.Count; i++)
-                                if (args[0].CheckEquality(list[i]))
+                                if (args[0].CheckEquality(list[i], pos))
                                 {
                                     list.RemoveAt(i);
                                     break;
@@ -116,7 +116,7 @@ class ListNative : INative
                         (args, pos) =>
                         {
                             for (int i = 0; i < list.Count; i++)
-                                if (args[0].CheckEquality(list[i]))
+                                if (args[0].CheckEquality(list[i], pos))
                                     return Value.True;
                             return Value.False;
                         }
@@ -129,7 +129,7 @@ class ListNative : INative
                         (args, pos) =>
                         {
                             for (int i = 0; i < list.Count; i++)
-                                if (args[0].CheckEquality(list[i]))
+                                if (args[0].CheckEquality(list[i], pos))
                                     return new Value(i);
                             return new Value(-1);
                         }

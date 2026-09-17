@@ -12,12 +12,12 @@ class FileNative : INative
     {
         globals.AddFunction("file_exists", ["path"], (args, pos) =>
         {
-            return new Value(File.Exists(args[0].ToString()));
+            return new Value(File.Exists(args[0].ToString(pos)));
         });
 
         globals.AddFunction("file_read", ["path"], (args, pos) =>
         {
-            string filePath = args[0].ToString();
+            string filePath = args[0].ToString(pos);
             CheckFileExistence(filePath, pos);
 
             try
@@ -32,11 +32,11 @@ class FileNative : INative
 
         globals.AddFunction("file_write", ["path", "content"], (args, pos) =>
         {
-            string filePath = args[0].ToString();
+            string filePath = args[0].ToString(pos);
 
             try
             {
-                File.WriteAllText(filePath, args[1].ToString());
+                File.WriteAllText(filePath, args[1].ToString(pos));
                 return Value.Null;
             }
             catch (Exception e)
@@ -47,11 +47,11 @@ class FileNative : INative
 
         globals.AddFunction("file_append", ["path", "content"], (args, pos) =>
         {
-            string filePath = args[0].ToString();
+            string filePath = args[0].ToString(pos);
 
             try
             {
-                File.AppendAllText(filePath, args[1].ToString());
+                File.AppendAllText(filePath, args[1].ToString(pos));
                 return Value.Null;
             }
             catch (Exception e)
@@ -62,7 +62,7 @@ class FileNative : INative
 
         globals.AddFunction("file_delete", ["path"], (args, pos) =>
         {
-            string filePath = args[0].ToString();
+            string filePath = args[0].ToString(pos);
             CheckFileExistence(filePath, pos);
 
             try
@@ -78,8 +78,8 @@ class FileNative : INative
 
         globals.AddFunction("file_copy", ["source", "destination"], (args, pos) =>
         {
-            string source = args[0].ToString();
-            string destination = args[1].ToString();
+            string source = args[0].ToString(pos);
+            string destination = args[1].ToString(pos);
 
             CheckFileExistence(source, pos);
 
@@ -96,8 +96,8 @@ class FileNative : INative
 
         globals.AddFunction("file_move", ["source", "destination"], (args, pos) =>
         {
-            string source = args[0].ToString();
-            string destination = args[1].ToString();
+            string source = args[0].ToString(pos);
+            string destination = args[1].ToString(pos);
 
             CheckFileExistence(source, pos);
 
@@ -114,7 +114,7 @@ class FileNative : INative
 
         globals.AddFunction("file_size", ["path"], (args, pos) =>
         {
-            string filePath = args[0].ToString();
+            string filePath = args[0].ToString(pos);
             CheckFileExistence(filePath, pos);
 
             try
@@ -129,7 +129,7 @@ class FileNative : INative
 
         globals.AddFunction("file_read_lines", ["path"], (args, pos) =>
         {
-            string filePath = args[0].ToString();
+            string filePath = args[0].ToString(pos);
             CheckFileExistence(filePath, pos);
 
             try
@@ -151,7 +151,7 @@ class FileNative : INative
 
         globals.AddFunction("file_write_lines", ["path", "lines"], (args, pos) =>
         {
-            string filePath = args[0].ToString();
+            string filePath = args[0].ToString(pos);
             List<Value> lines = args[1].ExpectList(pos);
 
             try
@@ -159,7 +159,7 @@ class FileNative : INative
                 string[] result = new string[lines.Count];
 
                 for (int i = 0; i < lines.Count; i++)
-                    result[i] = lines[i].ToString();
+                    result[i] = lines[i].ToString(pos);
 
                 File.WriteAllLines(filePath, result);
 

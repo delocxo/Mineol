@@ -109,7 +109,7 @@ class SeqNative : INative
                                 key.GetHash(pos);
 
                                 if (hashMapObject.Values.ContainsKey(key))
-                                    throw new Error($"Duplicate key '{key}'", pos);
+                                    throw new Error($"Duplicate key '{key.ToString(pos)}'", pos);
 
                                 hashMapObject.Values[key] = mappedValue;
                             }

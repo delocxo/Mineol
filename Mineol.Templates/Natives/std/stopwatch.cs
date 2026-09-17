@@ -92,7 +92,7 @@ class StopWatchNative : INative
             throw new Error($"{target.KindName} does not contain '{memberName}'", pos);
         });
 
-        kindOperations.AddToString(swKind, (target) =>
+        kindOperations.AddToString(swKind, (target, pos) =>
         {
             return target
                 .As<Stopwatch>()

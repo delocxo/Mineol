@@ -37,7 +37,7 @@ static class Arithmetic
         }
 
         else if (left.IsString() || right.IsString())
-            return new Value(left.ToString() + right.ToString());
+            return new Value(left.ToString(position) + right.ToString(position));
 
         return Globals.KindOperations.GetBinary(left, right, BinaryOperation.Add, "+", position);
     }
@@ -184,12 +184,12 @@ static class Arithmetic
 
     public static Value Equals(Value left, Value right, Position position)
     {
-        return new Value(left.CheckEquality(right));
+        return new Value(left.CheckEquality(right, position));
     }
 
     public static Value NotEquals(Value left, Value right, Position position)
     {
-        return new Value(!left.CheckEquality(right));
+        return new Value(!left.CheckEquality(right, position));
     }
 
     public static Value Negate(Value right, Position position)

@@ -63,7 +63,7 @@ class StringNative : INative
                         ["needle"],
                         (args, pos) =>
                         {
-                            return new Value(value.StartsWith(args[0].ToString(), StringComparison.Ordinal));
+                            return new Value(value.StartsWith(args[0].ToString(pos), StringComparison.Ordinal));
                         }
                     );
 
@@ -73,7 +73,7 @@ class StringNative : INative
                         ["needle"],
                         (args, pos) =>
                         {
-                            return new Value(value.EndsWith(args[0].ToString(), StringComparison.Ordinal));
+                            return new Value(value.EndsWith(args[0].ToString(pos), StringComparison.Ordinal));
                         }
                     );
 
@@ -103,7 +103,7 @@ class StringNative : INative
                         ["needle"],
                         (args, pos) =>
                         {
-                            return new Value(value.Contains(args[0].ToString(), StringComparison.Ordinal));
+                            return new Value(value.Contains(args[0].ToString(pos), StringComparison.Ordinal));
                         }
                     );
 
@@ -113,7 +113,7 @@ class StringNative : INative
                         ["needle"],
                         (args, pos) =>
                         {
-                            return new Value(value.IndexOf(args[0].ToString(), StringComparison.Ordinal));
+                            return new Value(value.IndexOf(args[0].ToString(pos), StringComparison.Ordinal));
                         }
                     );
 
@@ -136,8 +136,8 @@ class StringNative : INative
                         (args, pos) =>
                         {
                             return new Value(value.Replace(
-                                args[0].ToString(),
-                                args[1].ToString(),
+                                args[0].ToString(pos),
+                                args[1].ToString(pos),
                                 StringComparison.Ordinal
                             ));
                         }
@@ -180,7 +180,7 @@ class StringNative : INative
                         (args, pos) =>
                         {
                             return new Value(value
-                                .Split(args[0].ToString())
+                                .Split(args[0].ToString(pos))
                                 .Select(x => new Value(x))
                                 .ToList());
                         }
@@ -199,7 +199,9 @@ class StringNative : INative
         globals.AddFunction("string_join", ["separator", "items"], (args, pos) =>
         {
             if (args[1].IsIterable())
-                return new Value(string.Join(args[0].ToString(), args[1].GetIterable(pos)));
+                return new Value(string.Join(
+                    args[0].ToString(pos),
+                    args[1].GetIterable(pos).Select(x => x.ToString(pos))));
 
             throw new Error($"{args[1].KindName} cannot be joined", pos);
         });
@@ -233,7 +235,7 @@ class StringNative : INative
                 if (currentArg >= items.Count)
                     throw new Error("Not enough arguments for string format", pos);
 
-                sb.Append(items[currentArg++].ToString());
+                sb.Append(items[currentArg++].ToString(pos));
             }
 
             if (currentArg < items.Count)
