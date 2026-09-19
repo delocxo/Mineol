@@ -153,25 +153,18 @@ class SysNative : INative
                 .Select(x => x.ExpectString("Expected an string argument", pos))
                 .ToArray();
 
-            try
+            ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                ProcessStartInfo startInfo = new ProcessStartInfo
-                {
-                    FileName = command,
-                    UseShellExecute = true
-                };
+                FileName = command,
+                UseShellExecute = true
+            };
 
-                foreach (string arg in arguments)
-                    startInfo.ArgumentList.Add(arg);
+            foreach (string arg in arguments)
+                startInfo.ArgumentList.Add(arg);
 
-                Process.Start(startInfo);
+            Process.Start(startInfo);
 
-                return Value.Null;
-            }
-            catch (Exception e)
-            {
-                throw new Error($"Process start error: {e.Message}", pos);
-            }
+            return Value.Null;
         });
     }
 }
