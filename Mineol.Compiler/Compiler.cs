@@ -270,8 +270,14 @@ class Compiler
                     string iterableName = $"_for_iterable_{id}";
                     string itemName = $"_for_item_{id}";
                     string iterable = CompileExpr(forStmt.Iterable);
+                    string position = PosToRuntimePos(forStmt.Position);
 
-                    EmitLine($"List<Value> {iterableName} = {iterable}.GetIterable({PosToRuntimePos(forStmt.Position)});");
+                    EmitLine($"List<Value> {iterableName} = {iterable}.GetIterable({position});");
+
+                    EmitLine("try");
+                    EmitLine("{");
+
+                    _indentLevel++;
 
                     EmitLine($"foreach (Value {itemName} in {iterableName})");
                     EmitLine("{");
@@ -284,6 +290,22 @@ class Compiler
                     CompileStmts(forStmt.Body);
 
                     EndScope();
+                    EmitLine("}");
+
+                    _indentLevel--;
+
+                    EmitLine("}");
+                    EmitLine("catch (Error)");
+                    EmitLine("{");
+                    _indentLevel++;
+                    EmitLine("  throw;");
+                    _indentLevel--;
+                    EmitLine("}");
+                    EmitLine("catch (Exception e)");
+                    EmitLine("{");
+                    _indentLevel++;
+                    EmitLine($" throw new InternalError(e, {position});");
+                    _indentLevel--;
                     EmitLine("}");
 
                     break;
@@ -364,6 +386,7 @@ class Compiler
                     {
                         string aLeft = Indent(CompileExpr(binaryExpr.Left));
                         var aRight = CompileCapturedExpr(binaryExpr.Right);
+                        string position = PosToRuntimePos(binaryExpr.Position);
 
                         if (string.IsNullOrWhiteSpace(aRight.Emitted))
                         {
@@ -372,6 +395,7 @@ class Compiler
                             return $"""
                             Arithmetic.And(
                             {aLeft},
+                                {position},
                                 () => {expr1})
                             """;
                         }
@@ -379,6 +403,7 @@ class Compiler
                         return $$"""
                         Arithmetic.And(
                         {{aLeft}},
+                            {{position}},
                             () => 
                             {
                         {{IndentBy(aRight.Emitted.Trim(), 2)}}
@@ -390,6 +415,7 @@ class Compiler
                     {
                         string aLeft = Indent(CompileExpr(binaryExpr.Left));
                         var aRight = CompileCapturedExpr(binaryExpr.Right);
+                        string position = PosToRuntimePos(binaryExpr.Position);
 
                         if (string.IsNullOrWhiteSpace(aRight.Emitted))
                         {
@@ -398,6 +424,7 @@ class Compiler
                             return $"""
                             Arithmetic.Or(
                             {aLeft},
+                                {position},
                                 () => {expr1})
                             """;
                         }
@@ -405,6 +432,7 @@ class Compiler
                         return $$"""
                         Arithmetic.Or(
                         {{aLeft}},
+                            {{position}},
                             () => 
                             {
                         {{IndentBy(aRight.Emitted.Trim(), 2)}}

@@ -10,10 +10,13 @@ static class Globals
 
     public static Value GetGlobal(string name, Position position)
     {
-        if (Values.TryGetValue(name, out Value value))
-            return value;
+        return Gaurder.Gaurd(position, () =>
+        {
+            if (Values.TryGetValue(name, out Value value))
+                return value;
 
-        throw new Error($"'{name}' does not exist", position);
+            throw new Error($"'{name}' does not exist", position);
+        });
     }
 
     [UnconditionalSuppressMessage(
@@ -63,7 +66,17 @@ static class Globals
             native.Register(Values);
             native.RegiserKindOperations(KindOperations);
         }
+
         RecordOperations.Register(KindOperations);
+
+        // foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+        // {
+        //     foreach (Type type in assembly.GetTypes())
+        //     {
+        //         if (type != typeof(Exception) && type != typeof(Error) && typeof(Exception).IsAssignableFrom(type))
+        //             ErrorType.Register(type);
+        //     }
+        // }
     }
 
 }

@@ -20,7 +20,9 @@ class TaskNative : INative
                         [],
                         (args, pos) =>
                         {
-                            taskValue.Wait();
+                            taskValue
+                                .GetAwaiter()
+                                .GetResult();
                             return target;
                         }
                     );

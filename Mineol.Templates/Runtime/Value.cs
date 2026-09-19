@@ -330,26 +330,36 @@ struct Value
 
     public Value Copy(Position position)
     {
-        if (IsNumber() || IsString() || IsBool() || IsNull())
-            return this;
+        Value copy = this;
 
-        else if (IsList())
-            return new Value([.. List]);
+        return Gaurder.Gaurd(position, () =>
+        {
+            if (copy.IsNumber() || copy.IsString() || copy.IsBool() || copy.IsNull())
+                return copy;
 
-        return Globals.KindOperations.GetCopy(this, position);
+            else if (copy.IsList())
+                return new Value([.. copy.List]);
+
+            return Globals.KindOperations.GetCopy(copy, position);
+        });
     }
 
     public List<Value> GetIterable(Position position)
     {
-        if (IsString())
-            return String
-                .Select(x => new Value(x.ToString()))
-                .ToList();
+        Value copy = this;
 
-        else if (IsList())
-            return List;
+        return Gaurder.Gaurd(position, () =>
+        {
+            if (copy.IsString())
+                return copy.String
+                    .Select(x => new Value(x.ToString()))
+                    .ToList();
 
-        return Globals.KindOperations.GetIterable(this, position);
+            else if (copy.IsList())
+                return copy.List;
+
+            return Globals.KindOperations.GetIterable(copy, position);
+        });
     }
 
     public bool IsIterable() => IsList()
